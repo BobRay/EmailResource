@@ -36,15 +36,8 @@
 
 $modx =& $object->xpdo;
 
-/* Remember that the files in the _build directory are not available
- * here and we don't know the IDs of any objects, so resources,
- * elements, and other objects must be retrieved by name with
- * $modx->getObject().
- */
-
 /* Connecting plugins to the appropriate system events and
  * connecting TVs to their templates is done here.
- *
  */
 
 $pluginEvents = array('OnWebPagePrerender');
@@ -56,35 +49,34 @@ $hasPlugins = true;
 $hasTemplates = false;
 $hasTemplateVariables = true;
 
- $hasExistingSettings = false;
+$hasExistingSettings = false;
 
 /* set to true to connect property sets to elements */
-$connectPropertySets = true;
+$connectPropertySets = false;
 
 
 $success = true;
 
-$modx->log(xPDO::LOG_LEVEL_INFO,'Running PHP Resolver.');
-switch($options[xPDOTransport::PACKAGE_ACTION]) {
+$modx->log(xPDO::LOG_LEVEL_INFO, 'Running PHP Resolver.');
+switch ($options[xPDOTransport::PACKAGE_ACTION]) {
     /* This code will execute during an install */
     case xPDOTransport::ACTION_INSTALL:
         /* Assign plugins to System events */
         if ($hasPlugins) {
-            foreach($plugins as $k => $plugin) {
-                $pluginObj = $modx->getObject('modPlugin',array('name'=>$plugin));
-                if (! $pluginObj) $modx->log(xPDO::LOG_LEVEL_INFO,'cannot get object: ' . $plugin);
-                if (empty($pluginEvents)) $modx->log(xPDO::LOG_LEVEL_INFO,'Cannot get System Events');
+            foreach ($plugins as $k => $plugin) {
+                $pluginObj = $modx->getObject('modPlugin', array('name' => $plugin));
+                if (!$pluginObj) {
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'cannot get object: ' . $plugin);
+                }
+                if (empty($pluginEvents)) {
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Cannot get System Events');
+                }
                 if (!empty ($pluginEvents) && $pluginObj) {
 
-                    $modx->log(xPDO::LOG_LEVEL_INFO,'Assigning Events to Plugin ' . $plugin);
-
-                    foreach($pluginEvents as $k => $event) {
-                        $intersect = $modx->newObject('modPluginEvent');
-                        $intersect->set('event',$event);
-                        $intersect->set('pluginid',$pluginObj->get('id'));
-                        $intersect->save();
-                    }
-                    $modx->log(xPDO::LOG_LEVEL_INFO,'Assigned Events to Plugin ' . $plugin);
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigning Events to Plugin ' . $plugin);
+                    $pluginObj->addMany($pluginEvents);
+                    $pluginObj->save();
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigned Events to Plugin ' . $plugin);
                 }
             }
         }
@@ -92,76 +84,56 @@ switch($options[xPDOTransport::PACKAGE_ACTION]) {
         /* Connect TVs to to the default template */
 
         if ($hasTemplateVariables) {
-            $categoryObj = $modx->getObject('modCategory',array('category'=> $category));
-            if (! $categoryObj) {
-                $modx->log(xPDO::LOG_LEVEL_INFO,'Could not retrieve category object: ' . $category);
+            $categoryObj = $modx->getObject('modCategory', array('category' => $category));
+            if (!$categoryObj) {
+                $modx->log(xPDO::LOG_LEVEL_INFO, 'Could not retrieve category object: ' . $category);
             } else {
                 $categoryId = $categoryObj->get('id');
             }
 
-            $modx->log(xPDO::LOG_LEVEL_INFO,'Attempting to attach TVs to Templates');
+            $modx->log(xPDO::LOG_LEVEL_INFO, 'Attempting to attach TVs to Templates');
             $ok = true;
             $defaultTemplateId = $modx->getOption('default_template', null);
-            $templates = array();
-            $templates[] = $modx->getObject('modTemplate', $defaultTemplateId);
-            if (!empty($templates)) {
+            $template = $modx->getObject('modTemplate', $defaultTemplateId);
 
-                $tvs = $modx->getCollection('modTemplateVar', array('category'=> $categoryId));
+            if (!empty($template)) {
+                $template->addMany($tvs);
+                $template->save();
+                $tvs = $modx->getCollection('modTemplateVar', array('category' => $categoryId));
 
                 if (!empty($tvs)) {
 
                     require MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
-                    foreach ($templates as $template) {
-                        foreach($tvs as $tv) {
-                            /* set TV description from language file */
-                            $descKey = $tv->get('description');
-                            $tv->set('description', $_lang[$descKey]);
-                            $tv->save();
+                    // foreach ($templates as $template) {
+                    foreach ($tvs as $tv) {
+                        /* set TV description from language file */
+                        $descKey = $tv->get('description');
+                        $tv->set('description', $_lang[$descKey]);
+                        $tv->save();
 
-                            /* attach TV to template */
-                            $tvt = $modx->newObject('modTemplateVarTemplate');
-                            if ($tvt) {
-                                $r1 = $tvt->set('templateid', $template->get('id'));
-                                $r2 = $tvt->set('tmplvarid', $tv->get('id'));
-                                if ($r1 && $r2) {
-                                    $tvt->save();
-                                } else {
-                                    $ok = false;
-                                    $modx->log(xPDO::LOG_LEVEL_INFO,'Could not set TemplateVarTemplate fields');
-                                }
-                            } else {
-                                $ok = false;
-                                $modx->log(xPDO::LOG_LEVEL_INFO,'Could not create TemplateVarTemplate');
-                            }
-                            /* set default value of EmailAddressForTest TV */
-                            if ($tv->get('name') == 'EmailAddressForTest') {
-                                $tv->set('default_text', '@INHERIT ' . $modx->getOption('emailsender', null));
-                                $tv->save();
-                            }
+                        /* set default value of EmailAddressForTest TV */
+                        if ($tv->get('name') == 'EmailAddressForTest') {
+                            $tv->set('default_text', '@INHERIT ' . $modx->getOption('emailsender', null));
+                            $tv->save();
                         }
                     }
+
                 } else {
                     $ok = false;
-                    $modx->log(xPDO::LOG_LEVEL_INFO,'Could not retrieve TVs in category: ' . $category);
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Could not retrieve TVs in category: ' . $category);
                 }
 
             } else {
                 $ok = false;
-                $modx->log(xPDO::LOG_LEVEL_INFO,'Could not retrieve default template');
+                $modx->log(xPDO::LOG_LEVEL_INFO, 'Could not retrieve default template');
             }
 
             if ($ok) {
-                $modx->log(xPDO::LOG_LEVEL_INFO,'TVs attached to Default Template successfully');
+                $modx->log(xPDO::LOG_LEVEL_INFO, 'TVs attached to Default Template successfully');
             } else {
-                $modx->log(xPDO::LOG_LEVEL_INFO,'Failed to attach TVs to Default Template');
+                $modx->log(xPDO::LOG_LEVEL_INFO, 'Failed to attach TVs to Default Template');
             }
         }
-        
-        /* set default value of EmailAddressForTest TV */
-
-        
-
-
         break;
 
     /* This code will execute during an upgrade */
@@ -176,10 +148,10 @@ switch($options[xPDOTransport::PACKAGE_ACTION]) {
 
     /* This code will execute during an uninstall */
     case xPDOTransport::ACTION_UNINSTALL:
-        $modx->log(xPDO::LOG_LEVEL_INFO,'Uninstalling . . .');
+        $modx->log(xPDO::LOG_LEVEL_INFO, 'Uninstalling . . .');
         $success = true;
         break;
 
 }
-$modx->log(xPDO::LOG_LEVEL_INFO,'Script resolver actions completed');
+$modx->log(xPDO::LOG_LEVEL_INFO, 'Script resolver actions completed');
 return $success;

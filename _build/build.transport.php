@@ -31,7 +31,7 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','EmailResource');
 define('PKG_NAME_LOWER','emailresource');
-define('PKG_VERSION','1.0.1');
+define('PKG_VERSION','1.0.2');
 define('PKG_RELEASE','beta1');
 define('PKG_CATEGORY','EmailResource');
 
@@ -65,14 +65,6 @@ $hasPropertySets = false;
 /* Note: property sets are connected to elements in the script
  * resolver (see _build/data/resolvers/install.script.php)
  */
-$hasSubPackages = false; /* add in other component packages (transport.zip files)*/
-/* Note: The package files will be copied to core/packages but will
- * have to be installed manually with "Add New Package" and "Search
- * Locally for Packages" in Package Manager. Be aware that the
- * copied packages may be older versions than ones already
- * installed. This is necessary because Package Manager's
- * autoinstall of the packages is unreliable at this point. 
- */
 
 /******************************************
  * Work begins here
@@ -94,10 +86,9 @@ $sources= array (
     'source_core' => $root.'core/components/'.PKG_NAME_LOWER,
     'source_assets' => $root.'assets/components/'.PKG_NAME_LOWER,
     'resolvers' => $root . '_build/resolvers/',
-    'validators'=> $root . '_build/validators/',
     'data' => $root . '_build/data/',
     'docs' => $root . 'core/components/' . PKG_NAME_LOWER . '/docs/',
-    'install_options' => $root . '_build/install.options/',
+//  'install_options' => $root . '_build/install.options/',
     'packages'=> $root . 'core/packages',
 );
 unset($root);
@@ -196,8 +187,6 @@ if ($hasTemplateVariables) {
  */
 $vehicle = $builder->createVehicle($category,$attr);
 
-
-
 /* This section transfers every file in the local
  emailresources/emailresource/assets directory to the
  target site's assets/emailresource directory on install.
@@ -233,7 +222,6 @@ if ($hasResolver) {
         'source' => $sources['resolvers'] . 'install.script.php',
     ));
 }
-
 
 /* Put the category vehicle (with all the stuff we added to the
  * category) into the package 
