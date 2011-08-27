@@ -113,7 +113,7 @@ switch($options[xPDOTransport::PACKAGE_ACTION]) {
                     require MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
                     foreach ($templates as $template) {
                         foreach($tvs as $tv) {
-                            /* set description from language file */
+                            /* set TV description from language file */
                             $descKey = $tv->get('description');
                             $tv->set('description', $_lang[$descKey]);
                             $tv->save();
