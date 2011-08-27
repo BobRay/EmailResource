@@ -14,7 +14,7 @@ $properties = array(
         'type' => 'textfield',
         'options' => '',
         'value' => '',
-        'lexicon' => 'emailresources:properties',
+        'lexicon' => 'emailresource:properties',
     ),
     array(
         'name' => 'mail_from_name',

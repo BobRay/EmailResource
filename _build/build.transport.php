@@ -31,7 +31,7 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','EmailResource');
 define('PKG_NAME_LOWER','emailresource');
-define('PKG_VERSION','1.0.0');
+define('PKG_VERSION','1.0.1');
 define('PKG_RELEASE','beta1');
 define('PKG_CATEGORY','EmailResource');
 
@@ -197,13 +197,7 @@ if ($hasTemplateVariables) {
 $vehicle = $builder->createVehicle($category,$attr);
 
 
-/* package in script resolver if any */
-if ($hasResolver) {
-    $modx->log(modX::LOG_LEVEL_INFO,'Adding in Script Resolver.');
-    $vehicle->resolve('php',array(
-        'source' => $sources['resolvers'] . 'install.script.php',
-    ));
-}
+
 /* This section transfers every file in the local
  emailresources/emailresource/assets directory to the
  target site's assets/emailresource directory on install.
@@ -232,7 +226,13 @@ if ($hasCore) {
         ));
     }
 
-
+/* package in script resolver if any */
+if ($hasResolver) {
+    $modx->log(modX::LOG_LEVEL_INFO,'Adding in Script Resolver.');
+    $vehicle->resolve('php',array(
+        'source' => $sources['resolvers'] . 'install.script.php',
+    ));
+}
 
 
 /* Put the category vehicle (with all the stuff we added to the

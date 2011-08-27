@@ -1,5 +1,12 @@
 Changelog for EmailResource
 
+EmailResource 1.0.1
+-------------------
+Added sanity checks
+Added Plugin properties
+Internationalized property and TV descriptions
+Improved package install reliability
+
 EmailResource 1.0.0
 -------------------
 Initial Version

@@ -5,7 +5,7 @@ $templateVariables[0]->fromArray(array(
     'type' => 'option',
     'name' => 'PreviewEmail',
     'caption' => 'Preview Email',
-    'description' => 'Show preview of email when resource is previewed',
+    'description' => 'er_preview_email_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -15,6 +15,7 @@ $templateVariables[0]->fromArray(array(
     'display_params' => '',
     'default_text' => 'No',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[1]= $modx->newObject('modTemplateVar');
@@ -23,7 +24,7 @@ $templateVariables[1]->fromArray(array(
     'type' => 'option',
     'name' => 'EmailOnPreview',
     'caption' => 'Bulk Email On Preview',
-    'description' => 'Email the resource to all subscribers when it is previewed',
+    'description' => 'er_email_on_preview_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -33,6 +34,7 @@ $templateVariables[1]->fromArray(array(
     'display_params' => '',
     'default_text' => 'No',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[2]= $modx->newObject('modTemplateVar');
@@ -41,7 +43,7 @@ $templateVariables[2]->fromArray(array(
     'type' => 'option',
     'name' => 'SendTestEmail',
     'caption' => 'Send Test Email',
-    'description' => 'Send a test email of the resource when it is previewed',
+    'description' => 'er_send_test_email_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -51,6 +53,7 @@ $templateVariables[2]->fromArray(array(
     'display_params' => '',
     'default_text' => 'No',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[3]= $modx->newObject('modTemplateVar');
@@ -59,7 +62,7 @@ $templateVariables[3]->fromArray(array(
     'type' => 'text',
     'name' => 'EmailAddressForTest',
     'caption' => 'Email Address For Test',
-    'description' => 'Email address to sent test email to',
+    'description' => 'er_email_address_for_test_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -69,6 +72,7 @@ $templateVariables[3]->fromArray(array(
     'display_params' => '',
     'default_text' => '',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[4]= $modx->newObject('modTemplateVar');
@@ -77,7 +81,7 @@ $templateVariables[4]->fromArray(array(
     'type' => 'option',
     'name' => 'CssMode',
     'caption' => 'CSS Mode',
-    'description' => 'Specifies how the CSS is stored.',
+    'description' => 'er_css_mode_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -87,6 +91,7 @@ $templateVariables[4]->fromArray(array(
     'display_params' => '',
     'default_text' => '@INHERIT FILE',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[5]= $modx->newObject('modTemplateVar');
@@ -95,7 +100,7 @@ $templateVariables[5]->fromArray(array(
     'type' => 'text',
     'name' => 'CssFile',
     'caption' => 'CSS File(s)',
-    'description' => 'Comma separated list of CSS files, chunk, or resource names. For files, CssBasePath will be prepended.',
+    'description' => 'er_css_files_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -105,6 +110,7 @@ $templateVariables[5]->fromArray(array(
     'display_params' => '',
     'default_text' => '@INHERIT',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[6]= $modx->newObject('modTemplateVar');
@@ -113,7 +119,7 @@ $templateVariables[6]->fromArray(array(
     'type' => 'option',
     'name' => 'InlineCss',
     'caption' => 'Create Inline CSS',
-    'description' => 'Use CSS files to create inline CSS',
+    'description' => 'er_inline_css_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -123,6 +129,7 @@ $templateVariables[6]->fromArray(array(
     'display_params' => '',
     'default_text' => '@INHERIT Yes',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 $templateVariables[7]= $modx->newObject('modTemplateVar');
@@ -131,7 +138,7 @@ $templateVariables[7]->fromArray(array(
     'type' => 'text',
     'name' => 'CssBasePath',
     'caption' => 'CSS Base Path',
-    'description' => 'Path of directory containing CSS files (ignored if mode is RESOURCE or CHUNK) -- should end with a slash.',
+    'description' => 'er_css_base_path_desc',
     'editor_type' => '0',
     'category' => '52',
     'locked' => '',
@@ -141,6 +148,7 @@ $templateVariables[7]->fromArray(array(
     'display_params' => '',
     'default_text' => '@INHERIT {modx_base_path}assets/components/emailresource/css/',
     'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
 return $templateVariables;
