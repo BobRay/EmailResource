@@ -1,0 +1,115 @@
+<h3>Overview</h3>
+
+<p>The EmailResource plugin for MODX Revolution will format and email any resource on your site. It will convert your CSS code to inline styles in the email so that the email will have HTML formatting. The CSS code can be taken from multiple CSS files, resources, or chunks.</p>
+
+<p>The plugin is controlled by a set of Template Variables that will appear on the Template Variable tag when editing any resource using a template to which the TVs are attached. Just edit the resource, set the TVs, and preview the resource. All generic TVs to be used across various pages are set to @INHERIT, so if you set them in a parent container, all children will inherit the parent's values for the TVs.</p>
+
+<p>The plugin is attached to the OnWebPagePrerender event and acts when a page is previewed from the Manager. The plugin does nothing in the front end, so the resource will appear normally to front-end visitors.</p>
+
+<p>The code to send email to a list of subscribers from within EmailResource plugin has not been implemented yet, but would be fairly simple to add. At present, the package assumes that you will be either cutting and pasting the email or emailing it to a bulk email service such as MailChimp.</p>
+
+<h3>Installing EmailResource for MODx Revolution</h3>
+
+<p>Go to System | Package Management on the main menu in the MODx Manager and click on the "Download Extras" button. That will take you to the Revolution Repository (AKA Web Transport Facility). Put EmailResource in the search box and press Enter. Click on the "Download" button, and when it changes to "Downloaded," click on the "Finish" button. That should bring you back to your Package Management grid. Click on the "Install" button next to EmailResource in the grid. The EmailResource plugin should now be installed.</p>
+
+<h3>EmailResource Template Variables</h3>
+<table class="properties">
+    <tbody>
+    <tr>
+        <th>Template Variable</th>
+        <th>Description</th>
+        <th>Default</th>
+    </tr>
+
+    <tr>
+        <td>Create Inline CSS</td>
+        <td>Convert CSS to inline styles in email version of resource.</td>
+        <td>Yes</td>
+    </tr>
+    <tr>
+        <td>Preview Email</td>
+        <td>Show a preview of the email rather than the original resource when previewing from the Manager.</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>Send Test Email</td>
+        <td>Send an email version of the resource to the address specified in the Email Address for Test TV.</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <td>CssMode</td>
+        <td>Specifies where the CSS is stored (files, resources, or chunks.</td>
+        <td>FILE</td>
+    </tr>
+    <tr>
+        <td>CssFiles</td>
+        <td>Comma-separated list specifying the files, resources, or chunks to use for the CSS styling in the email.</td>
+        <td>''</td>
+    </tr>
+    <tr>
+        <td>CssBasePath</td>
+        <td>Base path to the CSS files (ignored if the mode is RESOURCE or CHUNK) &mdash; should end with a slash.</td>
+        <td>{modx_base_path}assets/components/emailresource/css/</td>
+    </tr>
+    <tr>
+    <td>Bulk Email on Preview</td>
+    <td>Send the email version of the resource to a list of subscribers (not implementd).</td>
+    <td>No</td>
+    </tr>
+
+    </tbody>
+</table>
+
+
+<h3>EmailResource Plugin Properties</h3>
+
+<p>These properties set the various values for the email header. The &quot;To&quot; address for the test email is set in the template variable above. The other values are set on the properties tab of the plugin itself.</p>
+
+<p>The properties are optional and many of the default values may work for you. For those that don't, you should create a property set called &quot;MyEmailResourcePropertySet&quot; on the properties tab of the plugin. After creating the property set, make sure you are editing it rather than the default properties (it's name will show in the drop-down box at the upper-left of the grid). Just double-click on the values you want to change and enter the new value. Don't forget to save the property set, using the &quot;Save Property Set&quot; button when you're done.</p>
+
+<p>Whenever you want to edit the properties, make sure that the name is showing there so that you are not changing the default properties. Any values of the default properties will be overwritten when you upgrade the EmailResource package. </p>
+
+<p>Be sure to attach your property set to the plugin by clicking on the &quot;System Events&quot; tab. Scroll down to the end where the OnWebPagePrerender event is checked. Double-click on the Property Set column and select &quot;MyEmailResourcePropertySet.&quot; Then, save the plugin. It will then use your property set for the email setting values.</p>
+
+<table class="properties">
+    <tbody>
+    <tr>
+        <th>Property</th>
+        <th>Description</th>
+        <th>Default</th>
+    </tr>
+
+    <tr>
+        <td>mail_from</td>
+        <td>(optional) MAIL_FROM setting for email.</td>
+        <td>emailsender System Setting</td>
+    </tr>
+    <tr>
+        <td>mail_from_name</td>
+        <td>(optional) MAIL_FROM_NAME setting for email.</td>
+        <td>site_name System Setting</td>
+    </tr>
+    <tr>
+        <td>email_sender</td>
+        <td>(optional) EMAIL_SENDER setting for email.</td>
+        <td>emailsender System Setting</td>
+    </tr>
+    <tr>
+        <td>mail_reply_to</td>
+        <td>(optional) REPLY_TO setting for email.</td>
+        <td>emailsender System Setting</td>
+    </tr>
+    <tr>
+        <td>mail_subject</td>
+        <td>(optional) MAIL_SUBJECT setting for email.</td>
+        <td>Resource longtitle, or pagetitle if longtitle is empty</td>
+    </tr>
+    <tr>
+        <td>template_list</td>
+        <td>(optional but highly recommended) Comma-separated list of Template IDs. List all templates used by resources that might be emailed. This will speed up the site by preventing the plugin from running for pages that will not be emailed. Use no spaces in the list.</td>
+        <td>''</td>
+    </tr>
+
+    </tbody>
+</table>
+<p>&nbsp</p>

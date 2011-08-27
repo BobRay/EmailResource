@@ -1,0 +1,5 @@
+Changelog for EmailResource
+
+EmailResource 1.0.0
+-------------------
+Initial Version
