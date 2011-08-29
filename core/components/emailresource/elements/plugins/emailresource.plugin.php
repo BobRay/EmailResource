@@ -32,6 +32,7 @@
  *
  * @package emailresource
  *
+ * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
  */
 
 function my_debug($message, $clear = false) {
