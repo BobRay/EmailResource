@@ -8,6 +8,11 @@ div.emailresource table {
     width: 50%
 }
 
+div.emailresource img {
+    margin: 4;
+    float: right;
+}
+
 div.emailresource th {
     background-color: #ccc;
     padding: 10px;
