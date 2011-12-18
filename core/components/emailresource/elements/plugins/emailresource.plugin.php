@@ -116,14 +116,24 @@ if ($emailit || $preview || $sendTestEmail) {
             switch ($cssMode) {
                 case 'FILE':
                     $tempCss = file_get_contents($cssBasePath . $cssFile);
+                    if (empty($tempCss)) {
+                        die('Could not get CSS file: ' . $cssBasePath . $cssFile);
+                    }
                     break;
                 case 'RESOURCE':
                     $res = $modx->getObject('modResource', array('pagetitle'=> $cssFile));
                     $tempCss = $res->getContent();
                     unset($res);
+                    if (empty($tempCss)) {
+                        die('Could not get resource content: ' . $cssFile);
+                    }
                     break;
                 case 'CHUNK':
                     $tempCss = $modx->getChunk($cssFile);
+                    if (empty($tempCss)) {
+                        die('Could not get chunk content: ' . $cssFile);
+                    }
+
             }
         $css .= $tempCss . "\n";
         }
