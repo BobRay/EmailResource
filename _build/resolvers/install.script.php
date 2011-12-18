@@ -97,9 +97,15 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
             $template = $modx->getObject('modTemplate', $defaultTemplateId);
 
             if (!empty($template)) {
-                $template->addMany($tvs);
-                $template->save();
                 $tvs = $modx->getCollection('modTemplateVar', array('category' => $categoryId));
+                //$template->addMany($tvs);
+                //$template->save();
+                foreach($tvs as $tv) {
+                    $tvt = $modx->newObject('modTemplateVarTemplate');
+                    $tvt->set('tmplvarid',$tv->get('id'));
+                    $tvt->set('templateid',$defaultTemplateId);
+                    $tvt->save();
+                }
 
                 if (!empty($tvs)) {
 
