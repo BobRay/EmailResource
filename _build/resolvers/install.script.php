@@ -74,8 +74,15 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                 if (!empty ($pluginEvents) && $pluginObj) {
 
                     $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigning Events to Plugin ' . $plugin);
-                    $pluginObj->addMany($pluginEvents);
-                    $pluginObj->save();
+                    foreach ($pluginEvents as $k => $pluginEvent) {
+                        $pe = $modx->newObject('modPluginEvent');
+                        $pe->set('pluginid', $pluginObj->get('id'));
+                        $pe->set('event', $pluginEvent);
+                        $pe->save();
+                    }
+
+                    //$pluginObj->addMany($pluginEvents);
+                    //$pluginObj->save();
                     $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigned Events to Plugin ' . $plugin);
                 }
             }
