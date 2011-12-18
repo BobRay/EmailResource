@@ -1,13 +1,13 @@
 <?php $templateVariables = array();
 $templateVariables[0]= $modx->newObject('modTemplateVar');
 $templateVariables[0]->fromArray(array(
-    'id' => '15',
+    'id' => '1',
     'type' => 'option',
     'name' => 'PreviewEmail',
     'caption' => 'Preview Email',
     'description' => 'er_preview_email_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => 'Yes==Yes||No==No',
     'rank' => '1',
@@ -20,13 +20,13 @@ $templateVariables[0]->fromArray(array(
 
 $templateVariables[1]= $modx->newObject('modTemplateVar');
 $templateVariables[1]->fromArray(array(
-    'id' => '16',
+    'id' => '2',
     'type' => 'option',
     'name' => 'EmailOnPreview',
     'caption' => 'Bulk Email On Preview',
     'description' => 'er_email_on_preview_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => 'Yes==Yes||No==No',
     'rank' => '10',
@@ -39,13 +39,13 @@ $templateVariables[1]->fromArray(array(
 
 $templateVariables[2]= $modx->newObject('modTemplateVar');
 $templateVariables[2]->fromArray(array(
-    'id' => '17',
+    'id' => '3',
     'type' => 'option',
     'name' => 'SendTestEmail',
     'caption' => 'Send Test Email',
     'description' => 'er_send_test_email_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => 'Yes==Yes||No==No',
     'rank' => '2',
@@ -58,13 +58,13 @@ $templateVariables[2]->fromArray(array(
 
 $templateVariables[3]= $modx->newObject('modTemplateVar');
 $templateVariables[3]->fromArray(array(
-    'id' => '18',
+    'id' => '4',
     'type' => 'text',
     'name' => 'EmailAddressForTest',
     'caption' => 'Email Address For Test',
     'description' => 'er_email_address_for_test_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => '',
     'rank' => '3',
@@ -77,13 +77,13 @@ $templateVariables[3]->fromArray(array(
 
 $templateVariables[4]= $modx->newObject('modTemplateVar');
 $templateVariables[4]->fromArray(array(
-    'id' => '19',
+    'id' => '5',
     'type' => 'option',
     'name' => 'CssMode',
     'caption' => 'CSS Mode',
     'description' => 'er_css_mode_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => 'FILE||RESOURCE||CHUNK',
     'rank' => '5',
@@ -96,13 +96,13 @@ $templateVariables[4]->fromArray(array(
 
 $templateVariables[5]= $modx->newObject('modTemplateVar');
 $templateVariables[5]->fromArray(array(
-    'id' => '20',
+    'id' => '6',
     'type' => 'text',
     'name' => 'CssFile',
     'caption' => 'CSS File(s)',
     'description' => 'er_css_files_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => '',
     'rank' => '6',
@@ -115,13 +115,13 @@ $templateVariables[5]->fromArray(array(
 
 $templateVariables[6]= $modx->newObject('modTemplateVar');
 $templateVariables[6]->fromArray(array(
-    'id' => '21',
+    'id' => '7',
     'type' => 'option',
     'name' => 'InlineCss',
     'caption' => 'Create Inline CSS',
     'description' => 'er_inline_css_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => 'Yes==Yes||No==No',
     'rank' => '0',
@@ -134,13 +134,13 @@ $templateVariables[6]->fromArray(array(
 
 $templateVariables[7]= $modx->newObject('modTemplateVar');
 $templateVariables[7]->fromArray(array(
-    'id' => '22',
+    'id' => '8',
     'type' => 'text',
     'name' => 'CssBasePath',
     'caption' => 'CSS Base Path',
     'description' => 'er_css_base_path_desc',
     'editor_type' => '0',
-    'category' => '52',
+    'category' => '',
     'locked' => '',
     'elements' => '',
     'rank' => '7',
