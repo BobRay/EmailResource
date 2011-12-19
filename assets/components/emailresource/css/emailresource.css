@@ -3,13 +3,13 @@
 div.emailresource table {
     border: 3px solid #5E5E5E;
     margin: 0;
-    padding: 20;
+    padding: 20px;
     text-align: left;
     width: 50%
 }
 
 div.emailresource img {
-    margin: 4;
+    margin: 4px;
     float: right;
 }
 
