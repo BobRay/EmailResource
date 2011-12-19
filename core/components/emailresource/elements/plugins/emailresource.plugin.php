@@ -82,7 +82,7 @@ $inlineCss = $modx->resource->getTVValue('InlineCss') == 'Yes';
 $cssBasePath = $modx->resource->getTVValue('CssBasePath');
 
 if (empty ($cssBasePath)) {
-    $cssBasePath = MODX_BASE_URL . 'assets/components/emailresource/css/';
+    $cssBasePath = MODX_BASE_PATH . 'assets/components/emailresource/css/';
 } else if (strstr($cssBasePath, '{modx_base_path}')) {
     $cssBasePath = str_replace('{modx_base_path}',MODX_BASE_PATH,$cssBasePath);
 }
@@ -103,7 +103,6 @@ if (empty ($cssMode)) {
 }
 
 if ($emailit || $preview || $sendTestEmail) {
-    /* ToDo: GitHub */
     $html = $modx->resource->_output;
     if ($inlineCss) {
         $root = MODX_BASE_PATH;
