@@ -35,6 +35,23 @@
  * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
  */
 
+function fullUrls($html, $base) {
+/* remove any spaces around = sign */
+$html = preg_replace('@(href|src)\s*=\s*@','\1=',$html );
+
+/* Correct base URL, if necessary */
+$server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
+
+/* handle root-relative URLs */
+$html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
+
+/* handle base-relative URLs */
+$html = preg_replace('@\<([^>]*) (href|src)="(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
+
+return $html;
+}
+
+
 function my_debug($message, $clear = false) {
     global $modx;
 
@@ -55,6 +72,8 @@ function my_debug($message, $clear = false) {
 }
 
 $sp =& $scriptProperties;
+$base_url = $modx->getOption('site_url');
+
 /* Act only when previewing from the back end */
 if (! $modx->user->hasSessionContext('mgr') ) return '';
 
@@ -104,6 +123,10 @@ if (empty ($cssMode)) {
 
 if ($emailit || $preview || $sendTestEmail) {
     $html = $modx->resource->_output;
+
+    /* convert all images and links to full urls */
+    $html = fullUrls($html, $base_url);
+
     if ($inlineCss) {
         $root = MODX_BASE_PATH;
         $assets_path = $root . 'assets/components/emailresource/';
