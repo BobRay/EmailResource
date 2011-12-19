@@ -35,31 +35,33 @@
  * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
  */
 
-function fullUrls($html, $base) {
-/* remove any spaces around = sign */
-$html = preg_replace('@(href|src)\s*=\s*@','\1=',$html );
+function fullUrls($html, $base)
+{
+    /* remove any spaces around = sign */
+    $html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
 
-/* Correct base URL, if necessary */
-$server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
+    /* Correct base URL, if necessary */
+    $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
 
-/* handle root-relative URLs */
-$html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
+    /* handle root-relative URLs */
+    $html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
 
-/* handle base-relative URLs */
-$html = preg_replace('@\<([^>]*) (href|src)="(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
+    /* handle base-relative URLs */
+    $html = preg_replace('@\<([^>]*) (href|src)="(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
 
-return $html;
+    return $html;
 }
 
 
-function my_debug($message, $clear = false) {
+function my_debug($message, $clear = false)
+{
     global $modx;
 
-    $chunk = $modx->getObject('modChunk', array('name'=>'debug'));
-    if (! $chunk) {
-        $chunk = $modx->newObject('modChunk', array('name'=>'debug'));
+    $chunk = $modx->getObject('modChunk', array('name' => 'debug'));
+    if (!$chunk) {
+        $chunk = $modx->newObject('modChunk', array('name' => 'debug'));
         $chunk->save();
-        $chunk = $modx->getObject('modChunk', array('name'=>'debug'));
+        $chunk = $modx->getObject('modChunk', array('name' => 'debug'));
     }
     if ($clear) {
         $content = '';
@@ -75,19 +77,20 @@ $sp =& $scriptProperties;
 $base_url = $modx->getOption('site_url');
 
 /* Act only when previewing from the back end */
-if (! $modx->user->hasSessionContext('mgr') ) return '';
+if (!$modx->user->hasSessionContext('mgr')) {
+    return '';
+}
 
 /* Abort if in a resource that won't be emailed */
-$templates = $modx->getOption('template_list', $sp,null);
+$templates = $modx->getOption('template_list', $sp, null);
 if (!empty($templates)) {
     $templates = explode(',', $templates);
-    if (! in_array($modx->resource->get('template'),$templates)) {
+    if (!in_array($modx->resource->get('template'), $templates)) {
         return '';
     }
-    
+
 }
 unset($templates);
-
 
 
 /* only do this if you need lexicon strings */
@@ -102,8 +105,10 @@ $cssBasePath = $modx->resource->getTVValue('CssBasePath');
 
 if (empty ($cssBasePath)) {
     $cssBasePath = MODX_BASE_PATH . 'assets/components/emailresource/css/';
-} else if (strstr($cssBasePath, '{modx_base_path}')) {
-    $cssBasePath = str_replace('{modx_base_path}',MODX_BASE_PATH,$cssBasePath);
+} else {
+    if (strstr($cssBasePath, '{modx_base_path}')) {
+        $cssBasePath = str_replace('{modx_base_path}', MODX_BASE_PATH, $cssBasePath);
+    }
 }
 
 $sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
@@ -143,7 +148,7 @@ if ($emailit || $preview || $sendTestEmail) {
                     }
                     break;
                 case 'RESOURCE':
-                    $res = $modx->getObject('modResource', array('pagetitle'=> $cssFile));
+                    $res = $modx->getObject('modResource', array('pagetitle' => $cssFile));
                     $tempCss = $res->getContent();
                     unset($res);
                     if (empty($tempCss)) {
@@ -157,7 +162,7 @@ if ($emailit || $preview || $sendTestEmail) {
                     }
 
             }
-        $css .= $tempCss . "\n";
+            $css .= $tempCss . "\n";
         }
 
         $ctis = new CSSToInlineStyles($html, $css);
@@ -171,24 +176,24 @@ if ($emailit || $preview || $sendTestEmail) {
 
 if ($emailit || $sendTestEmail) {
     $preview = true;
-    
+
     $mail_from = $modx->getOption('mail_from', $sp);
-    $mail_from = empty($mail_from)? $modx->getOption('emailsender',null) : $mail_from;
-    
+    $mail_from = empty($mail_from) ? $modx->getOption('emailsender', null) : $mail_from;
+
     $mail_from_name = $modx->getOption('mail_from_name', $sp);
-    $mail_from_name = empty($mail_from_name)? $modx->getOption('site_name',null) : $mail_from_name;
-    
+    $mail_from_name = empty($mail_from_name) ? $modx->getOption('site_name', null) : $mail_from_name;
+
     $mail_sender = $modx->getOption('mail_sender', $sp);
-    $mail_sender = empty($mail_sender)? $modx->getOption('emailsender',null) : $mail_sender;
-    
+    $mail_sender = empty($mail_sender) ? $modx->getOption('emailsender', null) : $mail_sender;
+
     $mail_reply_to = $modx->getOption('mail_reply_to', $sp);
-    $mail_reply_to = empty($mail_reply_to)? $modx->getOption('emailsender',null) : $mail_reply_to;
-    
+    $mail_reply_to = empty($mail_reply_to) ? $modx->getOption('emailsender', null) : $mail_reply_to;
+
     $mail_subject = $modx->getOption('mail_subject', $sp);
-    $mail_subject = empty($mail_subject)? $modx->resource->get('longtitle') : $mail_subject;
+    $mail_subject = empty($mail_subject) ? $modx->resource->get('longtitle') : $mail_subject;
     /* fall back to pagetitle if longtitle is empty */
-    $mail_subject = empty($mail_subject)? $modx->resource->get('pagetitle') : $mail_subject;
-    
+    $mail_subject = empty($mail_subject) ? $modx->resource->get('pagetitle') : $mail_subject;
+
 
     if ($emailit) {
 
@@ -199,7 +204,7 @@ if ($emailit || $sendTestEmail) {
 
         /* *********************************** */
         /* turn the TV off to prevent accidental resending */
-        $tv = $modx->getObject('modTemplateVar', (integer)  $modx->getOption('emailOnPreviewTvId',$sp));
+        $tv = $modx->getObject('modTemplateVar', (integer)$modx->getOption('emailOnPreviewTvId', $sp));
         $tv->setValue($modx->resource->get('id'), 'No');
         $tv->save();
     }
