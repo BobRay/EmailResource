@@ -52,6 +52,25 @@ function fullUrls($html, $base)
     return $html;
 }
 
+function imgAttributes($html) {
+    $replace = array (
+        '<img style="vertical-align: baseline;' =>'<img align="bottom" hspace="4" vspace="4" style="vertical-align: baseline;',
+        '<img style="vertical-align: middle;' => '<img align="middle" hspace="4" vspace="4" style="vertical-align: middle;',
+        '<img style="vertical-align: top;' => '<img align="top" hspace="4" vspace="4" style="vertical-align: top;',
+        '<img style="vertical-align: bottom;' => '<img align="bottom" hspace="4" vspace="4" style="vertical-align: bottom;',
+        '<img style="vertical-align: text-top;' =>'<img align="top" hspace="4" vspace="4" style="vertical-align: text-top;',
+        '<img style="vertical-align: text-bottom;' => '<img align="bottom" hspace="4" vspace="4" style="vertical-align: text-bottom;',
+        '<img style="float: left;' => '<img align="left" hspace="4" vspace="4" style="float: left;',
+        '<img style="float: right;' => '<img align="right" hspace="4" vspace="4" style="float: right;',
+    );
+    return strReplaceAssoc($replace, $html);
+
+}
+
+function strReplaceAssoc(array $replace, $subject) {
+       return str_replace(array_keys($replace), array_values($replace), $subject);
+}
+
 
 function my_debug($message, $clear = false)
 {
@@ -131,6 +150,8 @@ if ($emailit || $preview || $sendTestEmail) {
 
     /* convert all images and links to full urls */
     $html = fullUrls($html, $base_url);
+    /* Fix image attributes */
+    $html = imgAttributes($html);
 
     if ($inlineCss) {
         $root = MODX_BASE_PATH;
