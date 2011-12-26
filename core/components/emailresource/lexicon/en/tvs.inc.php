@@ -35,6 +35,10 @@ $_lang['er_css_mode_desc'] = 'Specifies how the CSS is stored.';
 $_lang['er_css_files_desc'] = 'Comma separated list of CSS files, chunk, or resource names. For files, CssBasePath will be prepended.';
 $_lang['er_inline_css_desc'] = 'Use CSS files to create inline CSS';
 $_lang['er_css_base_path_desc'] = 'Path of directory containing CSS files (ignored if mode is RESOURCE or CHUNK) -- should end with a slash.';
+$_lang['er_groups_desc'] = 'Comma-separated list of groups to send to';
+$_lang['er_batch_size_desc'] = 'Size of each batch to send';
+$_lang['er_batch_delay_desc'] = 'Delay between batches (in seconds); default: 1 sec';
+$_lang['er_item_delay_desc'] = 'Delay between each email (in seconds); default: .51 sec';
 
 
  

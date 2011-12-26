@@ -151,4 +151,83 @@ $templateVariables[7]->fromArray(array(
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
+/* Groups, BatchSize, BatchDelay, ItemDelay */
+
+$templateVariables[8]= $modx->newObject('modTemplateVar');
+$templateVariables[8]->fromArray(array(
+    'id' => '9',
+    'type' => 'text',
+    'name' => 'Groups',
+    'caption' => 'Groups',
+    'description' => 'er_groups_desc',
+    'editor_type' => '0',
+    'category' => '',
+    'locked' => '',
+    'elements' => '',
+    'rank' => '8',
+    'display' => 'default',
+    'display_params' => '',
+    'default_text' => '',
+    'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
+),'',true,true);
+
+$templateVariables[9]= $modx->newObject('modTemplateVar');
+$templateVariables[9]->fromArray(array(
+    'id' => '10',
+    'type' => 'text',
+    'name' => 'BatchSize',
+    'caption' => 'Batch Size',
+    'description' => 'er_batch_size_desc',
+    'editor_type' => '0',
+    'category' => '',
+    'locked' => '',
+    'elements' => '',
+    'rank' => '9',
+    'display' => 'default',
+    'display_params' => '',
+    'default_text' => '',
+    'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
+),'',true,true);
+
+$templateVariables[10]= $modx->newObject('modTemplateVar');
+$templateVariables[10]->fromArray(array(
+    'id' => '11',
+    'type' => 'text',
+    'name' => 'BatchDelay',
+    'caption' => 'Batch delay (seconds)',
+    'description' => 'er_batch_delay_desc',
+    'editor_type' => '0',
+    'category' => '',
+    'locked' => '',
+    'elements' => '',
+    'rank' => '10',
+    'display' => 'default',
+    'display_params' => '',
+    'default_text' => '1',
+    'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
+),'',true,true);
+
+$templateVariables[11]= $modx->newObject('modTemplateVar');
+$templateVariables[11]->fromArray(array(
+    'id' => '12',
+    'type' => 'text',
+    'name' => 'ItemDelay',
+    'caption' => 'Item delay (seconds)',
+    'description' => 'er_item_delay_desc',
+    'editor_type' => '0',
+    'category' => '',
+    'locked' => '',
+    'elements' => '',
+    'rank' => '11',
+    'display' => 'default',
+    'display_params' => '',
+    'default_text' => '.51',
+    'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
+),'',true,true);
+
+
 return $templateVariables;

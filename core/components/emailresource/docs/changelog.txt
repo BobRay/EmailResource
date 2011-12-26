@@ -1,5 +1,16 @@
 Changelog for EmailResource
 
+EmailResource 1.0.3
+-------------------
+Bulk email support
+Fix for img attributes
+
+
+EmailResource 1.0.2
+-------------------
+Full URLs for images and links
+
+
 EmailResource 1.0.1
 -------------------
 Added sanity checks
