@@ -220,14 +220,18 @@ if ($emailit || $sendTestEmail) {
 
 
         /* *********************************** */
-
         /* bulk email $output goes here */
-
         /* *********************************** */
-        /* turn the TV off to prevent accidental resending */
+
+
+        /* turn the TVs off to prevent accidental resending */
         $tv = $modx->getObject('modTemplateVar', (integer)$modx->getOption('emailOnPreviewTvId', $sp));
         $tv->setValue($modx->resource->get('id'), 'No');
         $tv->save();
+        $tv = $modx->getObject('modTemplateVar', (integer)$modx->getOption('emailOnPreviewTvId', $sp));
+                $tv->setValue($modx->resource->get('id'), 'No');
+                $tv->save();
+
     }
 
     if (empty($testEmailAddress) && $sendTestEmail) {
