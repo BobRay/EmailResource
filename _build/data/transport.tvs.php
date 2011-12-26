@@ -186,7 +186,7 @@ $templateVariables[9]->fromArray(array(
     'rank' => '11',
     'display' => 'default',
     'display_params' => '',
-    'default_text' => '',
+    'default_text' => '@INHERIT 50',
     'properties' => 'array()',
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
