@@ -39,6 +39,7 @@
 
 $sp =& $scriptProperties;
 $base_url = $modx->getOption('site_url');
+$header = '';
 
 /* Act only when previewing from the back end */
 if (!$modx->user->hasSessionContext('mgr')) {
@@ -69,7 +70,7 @@ $er = new EmailResource($modx, $sp);
 $preview = $modx->resource->getTVValue('PreviewEmail') == 'Yes';
 $emailit = $modx->resource->getTVValue('EmailOnPreview') == 'Yes';
 $inlineCss = $modx->resource->getTVValue('InlineCss') == 'Yes';
-
+$sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
 
 $groups = $modx->resource->getTVValue('Groups');
 $batchSize = $modx->resource->getTVValue('BatchSize');
@@ -78,7 +79,7 @@ $batchDelay = $modx->resource->getTVValue('BatchDelay');
 $batchDelay = empty($batchDelay)? 1 : $batchDelay;
 $itemDelay = $modx->resource->getTVValue('itemDelay');
 $itemDelay = empty($itemDelay)? .51 : $itemDelay;
-$sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
+
 $testEmailAddress = $modx->resource->getTVValue('EmailAddressForTest');
 
 if ($emailit || $preview || $sendTestEmail) {
@@ -94,17 +95,20 @@ if ($emailit || $preview || $sendTestEmail) {
     if ($inlineCss) {
         $er->inlineCss();
         $output = $er->getHtml();
-    } else {
-        $output = $html;
     }
+
+    $output = $er->getHtml();
+
 } else {
+    /* just return without modifying output */
     return;
 }
 
 if ($emailit || $sendTestEmail) {
     $preview = true;
+    $er->setMailHeaders();
 
-    $mail_from = $modx->getOption('mail_from', $sp);
+    if (false) { $mail_from = $modx->getOption('mail_from', $sp);
     $mail_from = empty($mail_from) ? $modx->getOption('emailsender', null) : $mail_from;
 
     $mail_from_name = $modx->getOption('mail_from_name', $sp);
@@ -119,10 +123,11 @@ if ($emailit || $sendTestEmail) {
     $mail_subject = $modx->getOption('mail_subject', $sp);
     $mail_subject = empty($mail_subject) ? $modx->resource->get('longtitle') : $mail_subject;
     /* fall back to pagetitle if longtitle is empty */
-    $mail_subject = empty($mail_subject) ? $modx->resource->get('pagetitle') : $mail_subject;
+        $mail_subject = empty($mail_subject) ? $modx->resource->get('pagetitle') : $mail_subject;
+    }
 
 
-    if ($emailit) {
+    if ($emailit && false) {
 
 
         /* *********************************** */
@@ -195,14 +200,21 @@ if ($emailit || $sendTestEmail) {
     }
 
     if ($sendTestEmail) {
-        $modx->mail->mailer->SMTPDebug = 2;
+        $success = $er->sendMail($testEmailAddress,$testEmailAddress);
+        if ($success) {
+            $header = '<h3>The following test Email has been sent</h3>';
+        } else {
+            $header = '<h3>Error Sending Email</h3>';
+            /*ToDo: Set mail error message */
+        }
+        /*$modx->mail->mailer->SMTPDebug = 2;
         $modx->getService('mail', 'mail.modPHPMailer');
         $modx->mail->set(modMail::MAIL_BODY, $output);
         $modx->mail->set(modMail::MAIL_FROM, $mail_from);
         $modx->mail->set(modMail::MAIL_FROM_NAME, $mail_from_name);
         $modx->mail->set(modMail::MAIL_SENDER, $mail_sender);
         $modx->mail->set(modMail::MAIL_SUBJECT, $mail_subject);
-        $modx->mail->address('to', $testEmailAddress, $testEmailAddress);
+        $modx->mail->address('to', $testEmailAddress, $modx->user->get('username'));
         $modx->mail->address('reply-to', $mail_reply_to);
         $modx->mail->setHTML(true);
 
@@ -212,14 +224,14 @@ if ($emailit || $sendTestEmail) {
             $output = '<h3>The following test Email has been sent</h3>' . $output;
         } else {
 
-            $output = '<h3>Error sending test email</h3>' . $output;
-            $output .= '<br />' . $modx->mail->mailer->ErrorInfo;
-        }
+            $output = '<h3>Error sending test email</h3>' . '<br />' . $modx->mail->mailer->ErrorInfo . '<br />' . $output;
+
+        }*/
     }
 }
 if ($preview) {
     if ($emailit == false) {
-        $output = '<h3>Preview of Email version of this resource</h3>' . $output;
+        $output = $header . $er->getHtml();
     }
     $output = str_replace('[[', '[ [', $output);
     $modx->resource->_output = $output;

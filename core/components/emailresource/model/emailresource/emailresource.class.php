@@ -9,8 +9,11 @@ class EmailResource
     protected $cssMode;
     protected $cssFiles;
     protected $cssBasePath;
-
-
+    protected $mail_from;
+    protected $mail_from_name;
+    protected $mail_sender;
+    protected $mail_reply_to;
+    protected $mail_subject;
 
     public function __construct(&$modx, &$props)
     {
@@ -155,7 +158,50 @@ class EmailResource
         return $this->html;
     }
 
+    public function setMailHeaders()
+    {
+        $mail_from = $this->modx->getOption('mail_from', $this->props);
+        $this->mail_from = empty($mail_from) ? $this->modx->getOption('emailsender', null) : $mail_from;
 
+        $mail_from_name = $this->modx->getOption('mail_from_name', $this->props);
+        $this->mail_from_name = empty($mail_from_name) ? $this->modx->getOption('site_name', null) : $mail_from_name;
+
+        $mail_sender = $this->modx->getOption('mail_sender', $this->props);
+        $this->mail_sender = empty($mail_sender) ? $this->modx->getOption('emailsender', null) : $mail_sender;
+
+        $mail_reply_to = $this->modx->getOption('mail_reply_to', $this->props);
+        $this->mail_reply_to = empty($mail_reply_to) ? $this->modx->getOption('emailsender', null) : $mail_reply_to;
+
+        $mail_subject = $this->modx->getOption('mail_subject', $this->props);
+        $mail_subject = empty($mail_subject) ? $this->modx->resource->get('longtitle') : $mail_subject;
+        /* fall back to pagetitle if longtitle is empty */
+        $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
+    }
+
+    public function sendMail($address, $name) {
+        $this->modx->mail->mailer->SMTPDebug = 2;
+                $this->modx->getService('mail', 'mail.modPHPMailer');
+                $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
+                $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
+                $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
+                $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
+                $this->modx->mail->set(modMail::MAIL_SUBJECT, $this->mail_subject);
+                $this->modx->mail->address('to', $address, $name);
+                $this->modx->mail->address('reply-to', $this->mail_reply_to);
+                $this->modx->mail->setHTML(true);
+        
+                $sent = $this->modx->mail->send();
+        
+                if ($sent) {
+                    return true;
+                    //$output = '<h3>The following test Email has been sent</h3>' . $output;
+                } else {
+                    return false;
+                    //$output = '<h3>Error sending test email</h3>' . '<br />' . $modx->mail->mailer->ErrorInfo . '<br />' . $output;
+                    
+                }
+        
+    }
 
 } /* end class */
 
