@@ -35,62 +35,7 @@
  * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
  */
 
-function fullUrls($html, $base)
-{
-    /* remove any spaces around = sign */
-    $html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
 
-    /* Correct base URL, if necessary */
-    $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
-
-    /* handle root-relative URLs */
-    $html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
-
-    /* handle base-relative URLs */
-    $html = preg_replace('@\<([^>]*) (href|src)="(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
-
-    return $html;
-}
-
-function imgAttributes($html) {
-    $replace = array (
-        '<img style="vertical-align: baseline;' =>'<img align="bottom" hspace="4" vspace="4" style="vertical-align: baseline;',
-        '<img style="vertical-align: middle;' => '<img align="middle" hspace="4" vspace="4" style="vertical-align: middle;',
-        '<img style="vertical-align: top;' => '<img align="top" hspace="4" vspace="4" style="vertical-align: top;',
-        '<img style="vertical-align: bottom;' => '<img align="bottom" hspace="4" vspace="4" style="vertical-align: bottom;',
-        '<img style="vertical-align: text-top;' =>'<img align="top" hspace="4" vspace="4" style="vertical-align: text-top;',
-        '<img style="vertical-align: text-bottom;' => '<img align="bottom" hspace="4" vspace="4" style="vertical-align: text-bottom;',
-        '<img style="float: left;' => '<img align="left" hspace="4" vspace="4" style="float: left;',
-        '<img style="float: right;' => '<img align="right" hspace="4" vspace="4" style="float: right;',
-    );
-    return strReplaceAssoc($replace, $html);
-
-}
-
-function strReplaceAssoc(array $replace, $subject) {
-       return str_replace(array_keys($replace), array_values($replace), $subject);
-}
-
-
-function my_debug($message, $clear = false)
-{
-    global $modx;
-
-    $chunk = $modx->getObject('modChunk', array('name' => 'debug'));
-    if (!$chunk) {
-        $chunk = $modx->newObject('modChunk', array('name' => 'debug'));
-        $chunk->save();
-        $chunk = $modx->getObject('modChunk', array('name' => 'debug'));
-    }
-    if ($clear) {
-        $content = '';
-    } else {
-        $content = $chunk->getContent();
-    }
-    $content .= $message;
-    $chunk->setContent($content);
-    $chunk->save();
-}
 
 $sp =& $scriptProperties;
 $base_url = $modx->getOption('site_url');
@@ -99,6 +44,9 @@ $base_url = $modx->getOption('site_url');
 if (!$modx->user->hasSessionContext('mgr')) {
     return '';
 }
+
+require_once $modx->getOption('er.core_path', null, $modx->getOption('core_path') . 'components/emailresource/') . 'model/emailresource/emailresource.class.php';
+
 
 /* Abort if in a resource that won't be emailed */
 $templates = $modx->getOption('template_list', $sp, null);
@@ -115,79 +63,37 @@ unset($templates);
 /* only do this if you need lexicon strings */
 // $modx->lexicon->load('emailresource:default');
 
+$er = new EmailResource($modx, $sp);
 
+/* Get TV values */
 $preview = $modx->resource->getTVValue('PreviewEmail') == 'Yes';
 $emailit = $modx->resource->getTVValue('EmailOnPreview') == 'Yes';
 $inlineCss = $modx->resource->getTVValue('InlineCss') == 'Yes';
 
-$cssBasePath = $modx->resource->getTVValue('CssBasePath');
 
-if (empty ($cssBasePath)) {
-    $cssBasePath = MODX_BASE_PATH . 'assets/components/emailresource/css/';
-} else {
-    if (strstr($cssBasePath, '{modx_base_path}')) {
-        $cssBasePath = str_replace('{modx_base_path}', MODX_BASE_PATH, $cssBasePath);
-    }
-}
-
+$groups = $modx->resource->getTVValue('Groups');
+$batchSize = $modx->resource->getTVValue('BatchSize');
+$batchSize = empty($batchSize)? 50 : $batchSize;
+$batchDelay = $modx->resource->getTVValue('BatchDelay');
+$batchDelay = empty($batchDelay)? 1 : $batchDelay;
+$itemDelay = $modx->resource->getTVValue('itemDelay');
+$itemDelay = empty($itemDelay)? .51 : $itemDelay;
 $sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
-
 $testEmailAddress = $modx->resource->getTVValue('EmailAddressForTest');
 
-$cssTv = $modx->resource->getTVValue('cssFile');
-$cssFiles = explode(',', $cssTv);
-
-$cssMode = $modx->resource->getTVValue('CssMode');
-
-if (empty ($cssMode)) {
-    $cssMode = 'FILE';
-} else {
-    $cssMode = strtoupper($cssMode);
-}
-
 if ($emailit || $preview || $sendTestEmail) {
-    $html = $modx->resource->_output;
+    $html =& $modx->resource->_output;
+    $er->init();
+    $er->setHtml($html);
 
     /* convert all images and links to full urls */
-    $html = fullUrls($html, $base_url);
+    $er->fullUrls($base_url);
     /* Fix image attributes */
-    $html = imgAttributes($html);
-
+    $er->imgAttributes();
+    //$html = $er->getHtml();
     if ($inlineCss) {
-        $root = MODX_BASE_PATH;
-        $assets_path = $root . 'assets/components/emailresource/';
-        $core_path = $root . 'core/components/emailresource/';
-        require $core_path . 'model/emailresource/css_to_inline_styles.class.php';
-
-        $css = '';
-        foreach ($cssFiles as $cssFile) {
-            switch ($cssMode) {
-                case 'FILE':
-                    $tempCss = file_get_contents($cssBasePath . $cssFile);
-                    if (empty($tempCss)) {
-                        die('Could not get CSS file: ' . $cssBasePath . $cssFile);
-                    }
-                    break;
-                case 'RESOURCE':
-                    $res = $modx->getObject('modResource', array('pagetitle' => $cssFile));
-                    $tempCss = $res->getContent();
-                    unset($res);
-                    if (empty($tempCss)) {
-                        die('Could not get resource content: ' . $cssFile);
-                    }
-                    break;
-                case 'CHUNK':
-                    $tempCss = $modx->getChunk($cssFile);
-                    if (empty($tempCss)) {
-                        die('Could not get chunk content: ' . $cssFile);
-                    }
-
-            }
-            $css .= $tempCss . "\n";
-        }
-
-        $ctis = new CSSToInlineStyles($html, $css);
-        $output = $ctis->convert();
+        $er->inlineCss();
+        $output = $er->getHtml();
     } else {
         $output = $html;
     }
@@ -223,19 +129,69 @@ if ($emailit || $sendTestEmail) {
         /* bulk email $output goes here */
         /* *********************************** */
 
-
         /* turn the TVs off to prevent accidental resending */
-        $tv = $modx->getObject('modTemplateVar', (integer)$modx->getOption('emailOnPreviewTvId', $sp));
+        $tv = $modx->getObject('modTemplateVar', array('name'=> 'SendTestEmail'));
         $tv->setValue($modx->resource->get('id'), 'No');
         $tv->save();
-        $tv = $modx->getObject('modTemplateVar', (integer)$modx->getOption('emailOnPreviewTvId', $sp));
-                $tv->setValue($modx->resource->get('id'), 'No');
-                $tv->save();
+        $tv = $modx->getObject('modTemplateVar', array('name'=>'EmailOnPreview'));
+        $tv->setValue($modx->resource->get('id'), 'No');
+        $tv->save();
+
+        if (empty ($groups)) {
+            $modx->resource->_output = '<p>No User Groups selected</p>';
+            return '';
+        }
+        $recipients = array();
+        $userGroupNames = explode(',',$groups);
+        /* Build Recipient array */
+        foreach ($userGroupNames as $userGroupName) {
+            $group = $modx->getObject('modUserGroup', array('name' => trim($userGroupName)));
+            if (empty($group)) {
+                $modx->resource->_output =  '<p>Could not find User Group: ' . $userGroupName . '</p>';
+                return '';
+            }
+
+            $ugms = $group->getMany('UserGroupMembers');
+            if (empty ($ugms)) {
+                $modx->resource->_output = '<p>User Group: ' . $userGroupName . ' has no members</p>';
+                return '';
+            }
+
+            foreach ($ugms as $ugm) {
+                $memberId = $ugm->get('member');
+                $user = $modx->getObject('modUser', $memberId);
+                $username = $user->get('username');
+                $profile = $user->getOne('Profile');
+                $email = $profile->get('email');
+                $fullName = $profile->get('fullname');
+                $fullName = empty($fullName)? $username : $fullName;
+                $recipients[] = array (
+                    'group' => $userGroupName,
+                    'email' => $fullName . ' <' . $email . '>');
+            }
+        }
+        unset($users, $ugms);
+        if (empty($recipients)) {
+            $modx->resource->_output =  '<p>No Recipients to send to</p>';
+            return '';
+        }
+        /* $recipients array now complete */
+        $i = 1;
+        foreach ($recipients as $recipient) {
+            $output .=  '<br />(' . $i . ') ' . $recipient['group'] . ': ' . htmlentities($recipient['email']);
+
+            if (($i%$batchSize) == 0) {
+                $output .= '<br /> ------------------------------------------ <br/>';
+            }
+            $i++;
+        }
+        $modx->resource->_output = $output;
+        return '';
 
     }
 
     if (empty($testEmailAddress) && $sendTestEmail) {
-        return '<p>Test email address is empty';
+        return '<p>Test email address is empty</p>';
     }
 
     if ($sendTestEmail) {

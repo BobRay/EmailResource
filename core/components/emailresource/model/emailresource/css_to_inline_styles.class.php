@@ -91,7 +91,7 @@ class CSSToInlineStyles
      * @param    string $css    [optional] The CSS to use
      *
      */
-    public function __construct($html = null, $css = null)
+    public function __construct(&$html = null, $css = null)
     {
         if ($html !== null) {
             $this->setHTML($html);
