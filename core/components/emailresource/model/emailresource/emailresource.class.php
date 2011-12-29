@@ -14,20 +14,29 @@ class EmailResource
     protected $mail_sender;
     protected $mail_reply_to;
     protected $mail_subject;
+    protected $groups;
+    protected $batchSize;
+    protected $batchDelay;
+    protected $itemDelay;
+    protected $errors;
+    protected $logPath;
+
 
     public function __construct(&$modx, &$props)
     {
         $this->modx =& $modx;
         $this->props =& $props;
-        /* NP paths; Set the np. System Settings only for development */
-        $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/newspublisher/');
-        $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/newspublisher/');
-        $this->assetsUrl = $this->modx->getOption('er.assets_url', null, MODX_ASSETS_URL . 'components/newspublisher/');
+        /* er paths; Set the er. System Settings only for development */
+        $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/emailresource/');
+        $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/emailresource/');
+        $this->assetsUrl = $this->modx->getOption('er.assets_url', null, MODX_ASSETS_URL . 'components/emailresource/');
 
     }
 
     public function init()
     {
+        $this->logPath = $this->corePath . 'logs/';
+        $this->errors = array();
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
 
         if (empty ($cssBasePath)) {
@@ -40,7 +49,6 @@ class EmailResource
         $this->cssBasePath = $cssBasePath;
         $cssTv = $this->modx->resource->getTVValue('CssFile');
         $cssTv = empty($cssTv)? 'emailresource.css': $cssTv;
-        $this->my_debug('<br />CssFile: ' . $cssTv, true);
         $this->cssFiles = explode(',', $cssTv);
 
         $cssMode = $this->modx->resource->getTVValue('CssMode');
@@ -50,6 +58,15 @@ class EmailResource
         } else {
             $this->cssMode = strtoupper($cssMode);
         }
+
+        /* Bulk email settings */
+        $this->groups = $this->modx->resource->getTVValue('Groups');
+        $batchSize = $this->modx->resource->getTVValue('BatchSize');
+        $this->batchSize = empty($batchSize)? 50 : $batchSize;
+        $batchDelay = $this->modx->resource->getTVValue('BatchDelay');
+        $this->batchDelay = empty($batchDelay)? 1 : $batchDelay;
+        $itemDelay = $this->modx->resource->getTVValue('itemDelay');
+        $this->itemDelay = empty($itemDelay)? .51 : $itemDelay;
 
     }
 
@@ -95,7 +112,7 @@ class EmailResource
 
         $css = '';
         if (empty($this->cssFiles)) {
-            die('cssFiles is empty');
+            $this->setError('cssFiles is empty');
         }
         foreach ($this->cssFiles as $cssFile) {
             switch ($this->cssMode) {
@@ -105,19 +122,19 @@ class EmailResource
                     $tempCss = $res->getContent();
                     unset($res);
                     if (empty($tempCss)) {
-                        die('Could not get resource content: ' . $cssFile);
+                        $this->setError('Could not get resource content: ' . $cssFile);
                     }
                     break;
                 case 'CHUNK':
                     $tempCss = $this->modx->getChunk($cssFile);
                     if (empty($tempCss)) {
-                        die('Could not get chunk content: ' . $cssFile);
+                        $this->setError('Could not get chunk content: ' . $cssFile);
                     }
                 default:
                 case 'FILE':
                     $tempCss = file_get_contents($this->cssBasePath . $cssFile);
                     if (empty($tempCss)) {
-                        die('Could not get CSS file: ' . $this->cssBasePath . $cssFile);
+                        $this->setError('Could not get CSS file: ' . $this->cssBasePath . $cssFile);
                     }
                     break;
 
@@ -178,29 +195,120 @@ class EmailResource
         $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
     }
 
-    public function sendMail($address, $name) {
-        $this->modx->mail->mailer->SMTPDebug = 2;
-                $this->modx->getService('mail', 'mail.modPHPMailer');
-                $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
-                $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
-                $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
-                $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
-                $this->modx->mail->set(modMail::MAIL_SUBJECT, $this->mail_subject);
-                $this->modx->mail->address('to', $address, $name);
-                $this->modx->mail->address('reply-to', $this->mail_reply_to);
-                $this->modx->mail->setHTML(true);
-        
-                $sent = $this->modx->mail->send();
-        
-                if ($sent) {
-                    return true;
-                    //$output = '<h3>The following test Email has been sent</h3>' . $output;
-                } else {
+    public function sendMail($address, $name)
+    {
+        $this->modx->getService('mail', 'mail.modPHPMailer');
+        $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
+        $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
+        $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
+        $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
+        $this->modx->mail->set(modMail::MAIL_SUBJECT, $this->mail_subject);
+        $this->modx->mail->address('to', $address, $name);
+        $this->modx->mail->address('reply-to', $this->mail_reply_to);
+        $this->modx->mail->setHTML(true);
+        $sent = $this->modx->mail->send();
+
+        if ($sent) {
+
+            return true;
+        } else {
+            $this->setError('Could not send email to' . $address . ' &lt;' . $name . '  -- Mail Error: ' . $this->modx->mail->mailer->ErrorInfo);
+            return false;
+        }
+
+    }
+    public function sendBulkEmail() {
+
+                if (empty ($this->groups)) {
+                    $this->setError('No User Groups selected to send bulk email to');
                     return false;
-                    //$output = '<h3>Error sending test email</h3>' . '<br />' . $modx->mail->mailer->ErrorInfo . '<br />' . $output;
-                    
                 }
-        
+                $recipients = array();
+                $userGroupNames = explode(',',$this->groups);
+                /* Build Recipient array */
+                foreach ($userGroupNames as $userGroupName) {
+                    $group = $this->modx->getObject('modUserGroup', array('name' => trim($userGroupName)));
+                    if (empty($group)) {
+                        $this->setError('Could not find User Group: ' . $userGroupName);
+                    }
+
+                    $ugms = $group->getMany('UserGroupMembers');
+                    if (empty ($ugms)) {
+                        $this->setError('User Group: ' . $userGroupName . ' has no members');
+                    }
+                    /* create recipient array from user modUserGroupMember objects */
+                    foreach ($ugms as $ugm) {
+                        /* get the user id */
+                        $memberId = $ugm->get('member');
+
+                        /* get the user object and username */
+                        $user = $this->modx->getObject('modUser', $memberId);
+                        $username = $user->get('username');
+
+                        /* get the user's profile and extract email and fullname */
+                        $profile = $user->getOne('Profile');
+                        $email = $profile->get('email');
+                        $fullName = $profile->get('fullname');
+
+                        /* fall back to username if fullname is empty */
+                        $fullName = empty($fullName)? $username : $fullName;
+
+                        /* add user data to recipient array */
+                        $recipients[] = array (
+                            'group' => $userGroupName,
+                            'email' => $email,
+                            'fullName' => $fullName,
+                        );
+                    }
+                }
+                unset($users, $ugms);
+
+                if (empty($recipients)) {
+                    $this->setError('No Recipients to send to');
+                }
+                /* skip mail send if any errors are set */
+                if (!empty($this->errors)) {
+                    $this->setError('Bulk Emails not sent');
+                    return false;
+                }
+                /* $recipients array now complete and no errors - send bulk emails */
+                $i = 1;
+                foreach ($recipients as $recipient) {
+                    $this->sendMail($recipient['email'],$recipient['fullName']);
+                    //$this->my_debug('<br />email: '. $recipient['email'] . '  --  Name: '. $recipient['fullName'], true);
+                    sleep($this->itemDelay);
+
+                    /* implement batch delay if it's time */
+                    if (($i%$this->batchSize) == 0) {
+                        sleep($this->batchDelay);
+                    }
+                    $i++;
+                }
+
+    }
+    public function sendTestEmail($address, $name){
+        if (empty($address)) {
+            $this->setError('TestEmailAddress is empty; test email not sent');
+            return;
+        }
+        if (! $this->sendMail($address, $name)) {
+            $this->setError('Test email not sent');
+        }
+
+    }
+
+    public function setError($error){
+        $this->errors[] = $error;
+    }
+    public function getErrors() {
+        return $this->errors;
+    }
+    public function showErrors() {
+        $retVal = '';
+        foreach ($this->errors as $error) {
+            $retVal .= '<p>' . $error . "</p>\n";
+        }
+        return $retVal();
     }
 
 } /* end class */
