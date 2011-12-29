@@ -19,7 +19,7 @@ class EmailResource
     protected $batchDelay;
     protected $itemDelay;
     protected $errors;
-    protected $logPath;
+    protected $logFile;
 
 
     public function __construct(&$modx, &$props)
@@ -35,7 +35,7 @@ class EmailResource
 
     public function init()
     {
-        $this->logPath = $this->corePath . 'logs/';
+        $this->logFile = $this->corePath . 'logs/' . date('Y-m-d-h.i.sa');
         $this->errors = array();
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
 
@@ -198,6 +198,7 @@ class EmailResource
     public function sendMail($address, $name)
     {
         $this->modx->getService('mail', 'mail.modPHPMailer');
+        $this->modx->mail->reset();
         $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
         $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
         $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
@@ -209,81 +210,102 @@ class EmailResource
         $sent = $this->modx->mail->send();
 
         if ($sent) {
-
             return true;
         } else {
-            $this->setError('Could not send email to' . $address . ' &lt;' . $name . '  -- Mail Error: ' . $this->modx->mail->mailer->ErrorInfo);
+            $this->setError($this->modx->mail->mailer->ErrorInfo);
             return false;
         }
 
     }
-    public function sendBulkEmail() {
 
-                if (empty ($this->groups)) {
-                    $this->setError('No User Groups selected to send bulk email to');
-                    return false;
+    public function sendBulkEmail()
+    {
+
+        if (empty ($this->groups)) {
+            $this->setError('No User Groups selected to send bulk email to');
+            return false;
+        }
+        $recipients = array();
+        $userGroupNames = explode(',', $this->groups);
+        /* Build Recipient array */
+        foreach ($userGroupNames as $userGroupName) {
+            $group = $this->modx->getObject('modUserGroup', array('name' => trim($userGroupName)));
+            if (empty($group)) {
+                $this->setError('Could not find User Group: ' . $userGroupName);
+            }
+
+            $ugms = $group->getMany('UserGroupMembers');
+            if (empty ($ugms)) {
+                $this->setError('User Group: ' . $userGroupName . ' has no members');
+            }
+            /* create recipient array from user modUserGroupMember objects */
+            foreach ($ugms as $ugm) {
+                /* get the user id */
+                $memberId = $ugm->get('member');
+
+                /* get the user object and username */
+                $user = $this->modx->getObject('modUser', $memberId);
+                $username = $user->get('username');
+
+                /* get the user's profile and extract email and fullname */
+                $profile = $user->getOne('Profile');
+                $email = $profile->get('email');
+                $fullName = $profile->get('fullname');
+
+                /* fall back to username if fullname is empty */
+                $fullName = empty($fullName) ? $username : $fullName;
+
+                /* add user data to recipient array */
+                $recipients[] = array(
+                    'group' => $userGroupName,
+                    'email' => $email,
+                    'fullName' => $fullName,
+                );
+            }
+        }
+        unset($users, $ugms);
+
+        if (empty($recipients)) {
+            $this->setError('No Recipients to send to');
+        }
+        /* skip mail send if any errors are set */
+        if (!empty($this->errors)) {
+            $this->setError('Bulk Emails not sent');
+            return false;
+        }
+        /* $recipients array now complete and no errors - send bulk emails */
+        $i = 1;
+        $fp = fopen($this->logFile, 'w');
+        if (!$fp) {
+            $this->setError('Could not open log file');
+        }
+        set_time_limit(0);
+        foreach ($recipients as $recipient) {
+            if ($this->sendMail($recipient['email'], $recipient['fullName'])) {
+                if ($fp) {
+                    fwrite($fp, 'Successful send to: ' . $recipient['email'] . '  --  ' . $recipient['fullName'] . "\n");
                 }
-                $recipients = array();
-                $userGroupNames = explode(',',$this->groups);
-                /* Build Recipient array */
-                foreach ($userGroupNames as $userGroupName) {
-                    $group = $this->modx->getObject('modUserGroup', array('name' => trim($userGroupName)));
-                    if (empty($group)) {
-                        $this->setError('Could not find User Group: ' . $userGroupName);
-                    }
-
-                    $ugms = $group->getMany('UserGroupMembers');
-                    if (empty ($ugms)) {
-                        $this->setError('User Group: ' . $userGroupName . ' has no members');
-                    }
-                    /* create recipient array from user modUserGroupMember objects */
-                    foreach ($ugms as $ugm) {
-                        /* get the user id */
-                        $memberId = $ugm->get('member');
-
-                        /* get the user object and username */
-                        $user = $this->modx->getObject('modUser', $memberId);
-                        $username = $user->get('username');
-
-                        /* get the user's profile and extract email and fullname */
-                        $profile = $user->getOne('Profile');
-                        $email = $profile->get('email');
-                        $fullName = $profile->get('fullname');
-
-                        /* fall back to username if fullname is empty */
-                        $fullName = empty($fullName)? $username : $fullName;
-
-                        /* add user data to recipient array */
-                        $recipients[] = array (
-                            'group' => $userGroupName,
-                            'email' => $email,
-                            'fullName' => $fullName,
-                        );
-                    }
+            } else {
+                if ($fp) {
+                    $e = array_pop($this->errors);
+                    fwrite($fp, 'Error sending to: ' . $recipient['email'] . '  --  ' . $recipient['fullName'] . ' ' . $e . "\n");
                 }
-                unset($users, $ugms);
 
-                if (empty($recipients)) {
-                    $this->setError('No Recipients to send to');
-                }
-                /* skip mail send if any errors are set */
-                if (!empty($this->errors)) {
-                    $this->setError('Bulk Emails not sent');
-                    return false;
-                }
-                /* $recipients array now complete and no errors - send bulk emails */
-                $i = 1;
-                foreach ($recipients as $recipient) {
-                    $this->sendMail($recipient['email'],$recipient['fullName']);
-                    //$this->my_debug('<br />email: '. $recipient['email'] . '  --  Name: '. $recipient['fullName'], true);
-                    sleep($this->itemDelay);
 
-                    /* implement batch delay if it's time */
-                    if (($i%$this->batchSize) == 0) {
-                        sleep($this->batchDelay);
-                    }
-                    $i++;
-                }
+            }
+            //$this->my_debug('<br />email: '. $recipient['email'] . '  --  Name: '. $recipient['fullName'], true);
+            sleep($this->itemDelay);
+
+            /* implement batch delay if it's time */
+            if (($i % $this->batchSize) == 0) {
+                sleep($this->batchDelay);
+            }
+            $i++;
+        }
+        if ($fp) {
+            fclose($fp);
+        }
+
 
     }
     public function sendTestEmail($address, $name){
