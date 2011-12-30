@@ -1,8 +1,18 @@
 Changelog for EmailResource
 
+EmailResource 1.1.0
+-------------------
+Complete OOP refactoring
+Does Bulk email
+Logs Bulk Email sends
+More efficient queries
+Numerous bug fixes
+
+
+
 EmailResource 1.0.3
 -------------------
-Bulk email support
+Crude Bulk email support
 Fix for img attributes
 
 

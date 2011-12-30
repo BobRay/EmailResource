@@ -1,5 +1,54 @@
 <?php
 
+/**
+ * EmailResource
+ *
+ * Copyright 2011 Bob Ray
+ *
+ * @author Bob Ray <http://bobsguides.com>
+ * 
+ * 
+ *
+ * EmailResource is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option) any
+ * later version.
+ *
+ * EmailResource is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * EmailResource; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ * @package emailresource
+ */
+/**
+ * MODx EmailResource Class
+ *
+ * @version Version 1.1.0-beta1
+ *
+ * @package  emailresource
+ *
+ * The EmailResource plugin for emailing resources to users
+ *
+ * The EmailResource class contains all functions relating to EmailResource's
+ * operation.
+ */
+
+/**
+ * MODx EmailResource class
+ *
+ * Description: Creates and Sends an email version of a resource
+ *
+ * @package emailresource
+ *
+ * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
+ */
+
+
+
 class EmailResource
 {
 
