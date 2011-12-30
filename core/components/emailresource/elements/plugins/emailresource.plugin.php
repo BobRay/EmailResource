@@ -130,7 +130,7 @@ if ($emailit || $sendTestEmail) {
 
 $errors = $er->getErrors();
 if (!empty($errors)) {
-    $header = $er->showErrors();
+    $header = $er->showErrorStrings();
 } else {
     if ($sendTestEmail) {
         $header = '<h3>Test email sent successfully</h3>';

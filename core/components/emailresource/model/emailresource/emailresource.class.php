@@ -20,6 +20,11 @@ class EmailResource
     protected $itemDelay;
     protected $errors;
     protected $logFile;
+    protected $userClass;
+    protected $profileAlias;
+    protected $profileClass;
+    protected $sortBy;
+    protected $sortByAlias;
 
 
     public function __construct(&$modx, &$props)
@@ -35,6 +40,11 @@ class EmailResource
 
     public function init()
     {
+        $this->sortBy = $this->modx->getOption('sortBy',$this->props,'username');
+        $this->sortByAlias = $this->modx->getOption('sortByAlias',$this->props,'modUser');
+        $this->userClass = $this->modx->getOption('userClass',$this->props,'modUser');
+        $this->profileAlias = $this->modx->getOption('profileAlias',$this->props,'Profile');
+        $this->profileClass = $this->modx->getOption('profileClass',$this->props,'modUserProfile');
         $this->logFile = $this->corePath . 'logs/' . date('Y-m-d-h.i.sa');
         $this->errors = array();
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
@@ -195,6 +205,7 @@ class EmailResource
         $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
     }
     public function initializeMailer() {
+        set_time_limit(0);
         $this->modx->getService('mail', 'mail.modPHPMailer');
         $mail_from = $this->modx->getOption('mail_from', $this->props);
                 $this->mail_from = empty($mail_from) ? $this->modx->getOption('emailsender', null) : $mail_from;
@@ -224,18 +235,14 @@ class EmailResource
 
     public function sendMail($address, $name)
     {
-        $this->modx->mail->mailer->ClearAddresses();
-        $this->modx->mail->mailer->ClearBCCs();
         $this->modx->mail->address('to', $address, $name);
-
-        $sent = $this->modx->mail->send();
-
-        if ($sent) {
-            return true;
-        } else {
+        $success = $this->modx->mail->send();
+        if (! $success) {
             $this->setError($this->modx->mail->mailer->ErrorInfo);
-            return false;
         }
+        $this->modx->mail->mailer->ClearAddresses();
+        /* $this->modx->mail->mailer->ClearBCCs(); */
+        return $success;
 
     }
 
@@ -250,41 +257,65 @@ class EmailResource
         $userGroupNames = explode(',', $this->groups);
         /* Build Recipient array */
         foreach ($userGroupNames as $userGroupName) {
-            $group = $this->modx->getObject('modUserGroup', array('name' => trim($userGroupName)));
+            $userGroupName = trim($userGroupName);
+            /* allow UserGroup name or ID */
+            $c = intval($userGroupName);
+            $c = is_int($c) && !empty($c) ? $userGroupName : array('name' => $userGroupName);
+            $group = $this->modx->getObject('modUserGroup',$c);
+
             if (empty($group)) {
                 $this->setError('Could not find User Group: ' . $userGroupName);
             }
+            //***
+            /* get users */
+            $c = $this->modx->newQuery($this->userClass);
+            $c->innerJoin('modUserGroupMember','UserGroupMembers');
+            $c->where(array(
+                'UserGroupMembers.user_group' => $group->get('id'),
+                'active' => '1',
+            ));
+            //$total = $this->modx->getCount($this->userClass,$c);
+            $c->select($this->modx->getSelectColumns($this->userClass,$this->userClass),"", array('id','username','active'));
+            $c->sortby($this->modx->escape($this->sortByAlias).'.'.$this->modx->escape($this->sortBy),'ASC');
+            $users = $this->modx->getCollection($this->userClass,$c);
 
-            $ugms = $group->getMany('UserGroupMembers');
+
+           /* $ugms = $group->getMany('UserGroupMembers');
             if (empty ($ugms)) {
                 $this->setError('User Group: ' . $userGroupName . ' has no members');
+            }*/
+
+                foreach ($users as $user) {
+                    /* get the user id */
+                    /* get the user object and username */
+
+                    $username = $user->get('username');
+
+                    /* get the user's profile and extract email and fullname */
+
+                    $profile = $user->getOne($this->profileAlias);
+                    if (! $profile) {
+                        $this->setError('No Profile for: ' . $username);
+                    } else {
+                        $email = $profile->get('email');
+                        $fullName = $profile->get('fullname');
+                    }
+
+                    /* fall back to username if fullname is empty */
+                    $fullName = empty($fullName) ? $username : $fullName;
+                    if (! empty($email)) {
+                        /* add user data to recipient array */
+                        $recipients[] = array(
+                            'group' => $userGroupName,
+                            'email' => $email,
+                            'fullName' => $fullName,
+                        );
+                    } else {
+                        $this->setError('User: ' . $username . ' has no email address');
+                    }
+                }
             }
-            /* create recipient array from user modUserGroupMember objects */
-            foreach ($ugms as $ugm) {
-                /* get the user id */
-                $memberId = $ugm->get('member');
-
-                /* get the user object and username */
-                $user = $this->modx->getObject('modUser', $memberId);
-                $username = $user->get('username');
-
-                /* get the user's profile and extract email and fullname */
-                $profile = $user->getOne('Profile');
-                $email = $profile->get('email');
-                $fullName = $profile->get('fullname');
-
-                /* fall back to username if fullname is empty */
-                $fullName = empty($fullName) ? $username : $fullName;
-
-                /* add user data to recipient array */
-                $recipients[] = array(
-                    'group' => $userGroupName,
-                    'email' => $email,
-                    'fullName' => $fullName,
-                );
-            }
-        }
-        unset($users, $ugms);
+        unset($users);
 
         if (empty($recipients)) {
             $this->setError('No Recipients to send to');
@@ -299,8 +330,9 @@ class EmailResource
         $fp = fopen($this->logFile, 'w');
         if (!$fp) {
             $this->setError('Could not open log file');
+        } else {
+            //fwrite($fp,print_r($recipients, true));
         }
-        set_time_limit(0);
         foreach ($recipients as $recipient) {
             if ($this->sendMail($recipient['email'], $recipient['fullName'])) {
                 if ($fp) {
@@ -337,21 +369,23 @@ class EmailResource
         if (! $this->sendMail($address, $name)) {
             $this->setError('Test email not sent');
         }
+        return;
+    }
+    public function showErrorStrings() {
+           $retVal = '';
+           foreach ($this->errors as $error) {
+               $retVal .= '<h3>' . $error . "</h3>\n";
+           }
+           return $retVal;
     }
 
     public function setError($error){
         $this->errors[] = $error;
     }
     public function getErrors() {
-        return $this->errors;
+        return count($this->errors);
     }
-    public function showErrors() {
-        $retVal = '';
-        foreach ($this->errors as $error) {
-            $retVal .= '<p>' . $error . "</p>\n";
-        }
-        return $retVal();
-    }
+
 
 } /* end class */
 
