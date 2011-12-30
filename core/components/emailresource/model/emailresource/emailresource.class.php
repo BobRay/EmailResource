@@ -224,10 +224,8 @@ class EmailResource
 
     public function sendMail($address, $name)
     {
-
-        //$this->modx->mail->reset();
-        $this->modx->mail->mailer->clearAddresses();
-
+        $this->modx->mail->mailer->ClearAddresses();
+        $this->modx->mail->mailer->ClearBCCs();
         $this->modx->mail->address('to', $address, $name);
 
         $sent = $this->modx->mail->send();
