@@ -1,0 +1,5 @@
+Error sending to: nobodynowhere.com  --  Bad User One SMTP Error: The following SMTP Error: Data not accepted.nobodynowhere.com
+Successful send to: group1User01
+Successful send to: group1User02
+Successful send to: group1User03
+Error sending to: nobodynowhere.com  --  Bad User Two SMTP Error: The following SMTP Error: Data not accepted.nobodynowhere.com

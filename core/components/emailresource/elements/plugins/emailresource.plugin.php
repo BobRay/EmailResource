@@ -78,6 +78,7 @@ $sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
 
 $testEmailAddress = $modx->resource->getTVValue('EmailAddressForTest');
 
+
 if ($emailit || $preview || $sendTestEmail) {
     $html =& $modx->resource->_output;
     $er->init();
@@ -111,7 +112,8 @@ $tv->save();
 
 if ($emailit || $sendTestEmail) {
     $preview = true;
-    $er->setMailHeaders();
+    //$er->setMailHeaders();
+    $er->initializeMailer();
 
     if ($emailit) {
         /* send bulk email */
