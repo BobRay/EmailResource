@@ -131,9 +131,23 @@ class EmailResource
 
     public function fullUrls($base)
     {
-        $html =& $this->html;
-        /* remove any spaces around = sign */
-        $html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
+        /* extract domain name from $base */
+        $splitBase = explode('//', $base);
+        $domain = $splitBase[1];
+        $domain = rtrim($domain,'/ ');
+
+        /* remove space around = sign */
+        //$html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
+        $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $html);
+
+        /* fix google link weirdness */
+        $html = str_ireplace('google.com/undefined', 'google.com',$html);
+
+        /* add http to naked domain links so they'll be ignored later */
+        $html = str_ireplace('a href="' . $domain, 'a href="http://'. $domain, $html);
+
+        /* standardize orthography of domain name */
+        $html = str_ireplace($domain, $domain, $html);
 
         /* Correct base URL, if necessary */
         $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
@@ -142,8 +156,9 @@ class EmailResource
         $html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
 
         /* handle base-relative URLs */
-        $html = preg_replace('@\<([^>]*) (href|src)="(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
+        $html = preg_replace('@\<([^>]*) (href|src)="(?!http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
 
+        return $html;
     }
 
     public function imgAttributes() {
