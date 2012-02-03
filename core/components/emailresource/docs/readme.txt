@@ -1,6 +1,6 @@
---------------------
+----------------------
 Plugins: EmailResource
---------------------
+----------------------
 
 This extra would not exist without the generous support provided by WorkDay Media <http://www.workdaymedia.com.au>
 
