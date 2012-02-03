@@ -83,7 +83,7 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
 
                     //$pluginObj->addMany($pluginEvents);
                     //$pluginObj->save();
-                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigned Events to Plugin ' . $plugin);
+                    $modx->log(xPDO::LOG_LEVEL_INFO, 'Successfully assigned Events to Plugin ' . $plugin);
                 }
             }
         }
