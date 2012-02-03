@@ -1,5 +1,10 @@
 Changelog for EmailResource
 
+EmailResource 1.1.1
+-------------------
+Fixed issues with full URLs
+Changed to getIterator()
+
 EmailResource 1.1.0
 -------------------
 Complete OOP refactoring

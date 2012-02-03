@@ -341,7 +341,7 @@ class EmailResource
             //$total = $this->modx->getCount($this->userClass,$c);
             $c->select($this->modx->getSelectColumns($this->userClass,$this->userClass),"", array('id','username','active'));
             $c->sortby($this->modx->escape($this->sortByAlias).'.'.$this->modx->escape($this->sortBy),'ASC');
-            $users = $this->modx->getCollection($this->userClass,$c);
+            $users = $this->modx->getIterator($this->userClass,$c);
 
 
            /* $ugms = $group->getMany('UserGroupMembers');
