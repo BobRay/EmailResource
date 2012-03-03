@@ -367,6 +367,7 @@ class EmailResource
                     /* get the user's profile and extract email and fullname */
 
                     $profile = $user->getOne($this->profileAlias);
+                    $userTags = $profile->get('comment');
                     if (! $profile) {
                         $this->setError('No Profile for: ' . $username);
                     } else {
@@ -377,35 +378,41 @@ class EmailResource
                     /* fall back to username if fullname is empty */
                     $fullName = empty($fullName) ? $username : $fullName;
 
+                    /* process tags if Tags TV is set */
+                    if (!empty ($this->tags)) {
+                        $tags = explode(',',$this->tags);
+                        $hasTag = false;
 
+                        foreach ($tags as $tag) {
+                            $tag = trim($tag);
+
+
+                            if ( (!empty($tag)) && stristr($userTags,$tag)) {
+                                $hasTag = true;
+                            }
+                        }
+                        if (! $hasTag) {
+                            continue;
+                        }
+                    }
 
                     if (! empty($email)) {
                         /* add user data to recipient array */
-                        if (!empty ($this->tags)) {
-                            $tags = explode(',',$this->tags);
-                            $hasTag = false;
-                            foreach ($tags as $tag) {
-                                $tag = trim($tag);
-                                if (stristr($user->get('comment'),$tag)) {
-                                    $hasTag = true;
-                                }
-                            }
-                            if (! $hasTag) {
-                                continue;
-                            }
-                        }
+
                         /* Either no tags are in use or this user has a tag.
                          * Add user to recipient array */
                         $recipients[] = array(
                             'group' => $userGroupName,
                             'email' => $email,
                             'fullName' => $fullName,
+                            'userTags' => $userTags,
                         );
                     } else {
                         $this->setError('User: ' . $username . ' has no email address');
                     }
                 }
             }
+
         unset($users);
 
         if (empty($recipients)) {
@@ -427,7 +434,7 @@ class EmailResource
         foreach ($recipients as $recipient) {
             if ($this->sendMail($recipient['email'], $recipient['fullName'])) {
                 if ($fp) {
-                    fwrite($fp, 'Successful send to: ' . $recipient['email'] . ' (' . $recipient['fullName'] . ")\n");
+                    fwrite($fp, 'Successful send to: ' . $recipient['email'] . ' (' . $recipient['fullName'] . ') User Tags: ' . $recipient['userTags'] . "\n");
                 }
             } else {
                 if ($fp) {
