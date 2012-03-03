@@ -151,7 +151,7 @@ $templateVariables[7]->fromArray(array(
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
-/* Groups, BatchSize, BatchDelay, ItemDelay */
+/* Groups, Tags, BatchSize, BatchDelay, ItemDelay */
 
 $templateVariables[8]= $modx->newObject('modTemplateVar');
 $templateVariables[8]->fromArray(array(
@@ -176,9 +176,9 @@ $templateVariables[9]= $modx->newObject('modTemplateVar');
 $templateVariables[9]->fromArray(array(
     'id' => '10',
     'type' => 'text',
-    'name' => 'BatchSize',
-    'caption' => 'Batch Size',
-    'description' => 'er_batch_size_desc',
+    'name' => 'Tags',
+    'caption' => 'Tags',
+    'description' => 'er_tags_desc',
     'editor_type' => '0',
     'category' => '',
     'locked' => '',
@@ -186,7 +186,7 @@ $templateVariables[9]->fromArray(array(
     'rank' => '11',
     'display' => 'default',
     'display_params' => '',
-    'default_text' => '@INHERIT 50',
+    'default_text' => '',
     'properties' => 'array()',
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
@@ -195,9 +195,9 @@ $templateVariables[10]= $modx->newObject('modTemplateVar');
 $templateVariables[10]->fromArray(array(
     'id' => '11',
     'type' => 'text',
-    'name' => 'BatchDelay',
-    'caption' => 'Batch delay (seconds)',
-    'description' => 'er_batch_delay_desc',
+    'name' => 'BatchSize',
+    'caption' => 'Batch Size',
+    'description' => 'er_batch_size_desc',
     'editor_type' => '0',
     'category' => '',
     'locked' => '',
@@ -205,7 +205,7 @@ $templateVariables[10]->fromArray(array(
     'rank' => '12',
     'display' => 'default',
     'display_params' => '',
-    'default_text' => '@INHERIT 1',
+    'default_text' => '@INHERIT 50',
     'properties' => 'array()',
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
@@ -214,6 +214,25 @@ $templateVariables[11]= $modx->newObject('modTemplateVar');
 $templateVariables[11]->fromArray(array(
     'id' => '12',
     'type' => 'text',
+    'name' => 'BatchDelay',
+    'caption' => 'Batch delay (seconds)',
+    'description' => 'er_batch_delay_desc',
+    'editor_type' => '0',
+    'category' => '',
+    'locked' => '',
+    'elements' => '',
+    'rank' => '13',
+    'display' => 'default',
+    'display_params' => '',
+    'default_text' => '@INHERIT 1',
+    'properties' => 'array()',
+    'lexicon' => 'emailresource:tvs',
+),'',true,true);
+
+$templateVariables[12]= $modx->newObject('modTemplateVar');
+$templateVariables[12]->fromArray(array(
+    'id' => '13',
+    'type' => 'text',
     'name' => 'ItemDelay',
     'caption' => 'Item delay (seconds)',
     'description' => 'er_item_delay_desc',
@@ -221,7 +240,7 @@ $templateVariables[11]->fromArray(array(
     'category' => '',
     'locked' => '',
     'elements' => '',
-    'rank' => '13',
+    'rank' => '14',
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT .51',

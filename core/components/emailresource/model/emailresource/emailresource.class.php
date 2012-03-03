@@ -74,12 +74,15 @@ class EmailResource
     protected $profileClass;
     protected $sortBy;
     protected $sortByAlias;
+    protected $tags;
 
 
     public function __construct(&$modx, &$props)
     {
+
         $this->modx =& $modx;
         $this->props =& $props;
+        /* @var $modx modX */
         /* er paths; Set the er. System Settings only for development */
         $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/emailresource/');
         $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/emailresource/');
@@ -97,6 +100,7 @@ class EmailResource
         $this->logFile = $this->corePath . 'logs/' . date('Y-m-d-h.i.sa');
         $this->errors = array();
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
+        $this->tags = $this->modx->resource->getTVValue('Tags');
 
         if (empty ($cssBasePath)) {
             $cssBasePath = MODX_BASE_PATH . 'assets/components/emailresource/css/';
@@ -138,7 +142,7 @@ class EmailResource
 
         /* remove space around = sign */
         //$html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
-        $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $html);
+        $html =& preg_replace('@(?<=href|src)\s*=\s*@', '=', $this->html);
 
         /* fix google link weirdness */
         $html = str_ireplace('google.com/undefined', 'google.com',$html);
@@ -192,6 +196,7 @@ class EmailResource
             switch ($this->cssMode) {
 
                 case 'RESOURCE':
+                    /* @var $res modResource */
                     $res = $this->modx->getObject('modResource', array('pagetitle' => $cssFile));
                     $tempCss = $res->getContent();
                     unset($res);
@@ -227,7 +232,9 @@ class EmailResource
 
     public function my_debug($message, $clear = false)
     {
+        /* @var $chunk modChunk */
         $chunk = $this->modx->getObject('modChunk', array('name' => 'debug'));
+
         if (!$chunk) {
             $chunk = $this->modx->newObject('modChunk', array('name' => 'debug'));
             $chunk->save();
@@ -312,7 +319,7 @@ class EmailResource
 
     public function sendBulkEmail()
     {
-
+        /* @var $user modUser */
         if (empty ($this->groups)) {
             $this->setError('No User Groups selected to send bulk email to');
             return false;
@@ -321,6 +328,7 @@ class EmailResource
         $userGroupNames = explode(',', $this->groups);
         /* Build Recipient array */
         foreach ($userGroupNames as $userGroupName) {
+            /* @var $group modUserGroup */
             $userGroupName = trim($userGroupName);
             /* allow UserGroup name or ID */
             $c = intval($userGroupName);
@@ -350,6 +358,7 @@ class EmailResource
             }*/
 
                 foreach ($users as $user) {
+                    /* @var $user modUser */
                     /* get the user id */
                     /* get the user object and username */
 
@@ -367,8 +376,26 @@ class EmailResource
 
                     /* fall back to username if fullname is empty */
                     $fullName = empty($fullName) ? $username : $fullName;
+
+
+
                     if (! empty($email)) {
                         /* add user data to recipient array */
+                        if (!empty ($this->tags)) {
+                            $tags = explode(',',$this->tags);
+                            $hasTag = false;
+                            foreach ($tags as $tag) {
+                                $tag = trim($tag);
+                                if (stristr($user->get('comment'),$tag)) {
+                                    $hasTag = true;
+                                }
+                            }
+                            if (! $hasTag) {
+                                continue;
+                            }
+                        }
+                        /* Either no tags are in use or this user has a tag.
+                         * Add user to recipient array */
                         $recipients[] = array(
                             'group' => $userGroupName,
                             'email' => $email,
