@@ -8,7 +8,7 @@
 
 <p>If the &quot;Send Test Email&quot; TV is set to &quot;Yes&quot;, the email version of the resource will be sent to the address specified in the &quot;Email Address For Test&quot; TV.</p>
 
-These values are not set by default, because if they were, every time you previewed a resource, you'd be getting a copy of it in your email. To prevent this, the &quot;Send Test Email&quot; TV is turned off (set to &quot;No&quot;) for a resource as soon as it is emailed, so you have to turn it on and save the resource each time you want to actually send the email.</p>
+These values are not set by default, because if they were, every time you previewed a resource, you'd be getting a copy of it in your email. To prevent this, the &quot;Send Test Email&quot; TV is turned off (set to &quot;No&quot;) for a resource as soon as it is emailed, so you have to turn it on and save the resource each time you want to actually send the email. Don't forget to save the resource before viewing it if you want to send bulk email.</p>
 
 
 <p>The plugin is controlled by a set of Template Variables that will appear on the Template Variable tav when editing any resource using a template to which the TVs are attached. Just edit the resource, set the TVs, and preview the resource. All generic TVs to be used across various pages are set to @INHERIT, so if you set them in a parent container, all children will inherit the parent's values for the TVs.</p>
@@ -16,6 +16,13 @@ These values are not set by default, because if they were, every time you previe
 <p>The plugin is attached to the OnWebPagePrerender event and acts when a page is previewed from the Manager. The plugin does nothing in the front end, so the resource will appear normally to front-end visitors.</p>
 
 <p>The code to send email to a list of subscribers from within EmailResource plugin has not been implemented yet, but would be fairly simple to add. At present, the package assumes that you will be either cutting and pasting the email or emailing it to a bulk email service such as MailChimp.</p>
+
+<h3>Tag-based Sending</h3>
+
+<p>You can place a comma-separated list of tags in the 'comment' field of the User Profile for each User. If there are tags present in that field and you specify tags in the Tags TV, only users with corresponding tags will receive the email.</p>
+
+<p>The SubscribeMe package (available soon) will allow users to register on the site and select tags you define. The tags will be placed in the user's Profile when they confirm registration.</p>
+
 
 <h3>Installing EmailResource for MODx Revolution</h3>
 
@@ -30,48 +37,83 @@ These values are not set by default, because if they were, every time you previe
         <th>Default</th>
     </tr>
     <tr>
+           <td>Create Inline CSS</td>
+           <td>Convert CSS to inline styles in email version of resource.</td>
+           <td>Yes</td>
+    </tr>
+
+    <tr>
+           <td>Preview Email</td>
+           <td>Show a preview of the email rather than the original resource when previewing from the Manager.</td>
+           <td>No</td>
+    </tr>
+
+    <tr>
+            <td>Send Test Email</td>
+            <td>Send an email version of the resource to the address specified in the Email Address for Test TV.</td>
+            <td>No</td>
+    </tr>
+
+    <tr>
         <td>Email Address For Test</td>
         <td>The email address to send the test email to.</td>
         <td>emailsender System Setting</td>
     </tr>
 
     <tr>
-        <td>Create Inline CSS</td>
-        <td>Convert CSS to inline styles in email version of resource.</td>
-        <td>Yes</td>
-    </tr>
-    <tr>
-        <td>Preview Email</td>
-        <td>Show a preview of the email rather than the original resource when previewing from the Manager.</td>
-        <td>No</td>
-    </tr>
-    <tr>
-        <td>Send Test Email</td>
-        <td>Send an email version of the resource to the address specified in the Email Address for Test TV.</td>
-        <td>No</td>
-    </tr>
-    <tr>
         <td>CssMode</td>
         <td>Specifies where the CSS is stored (files, resources, or chunks.</td>
         <td>FILE</td>
     </tr>
+
     <tr>
         <td>CssFiles</td>
         <td>Comma-separated list specifying the files, resources, or chunks to use for the CSS styling in the email.</td>
-        <td>''</td>
+        <td></td>
     </tr>
+
     <tr>
         <td>CssBasePath</td>
-        <td>Base path to the CSS files (ignored if the mode is RESOURCE or CHUNK) &mdash; should end with a slash.</td>
-        <td>{modx_base_path}assets/components/emailresource/css/</td>
+        <td>Base path to the CSS files (ignored if the mode is RESOURCE or CHUNK) &mdash; should end with a slash (no spaces in the path).</td>
+        <td>{modx_base_path} assets/components/ emailresource/css/</td>
     </tr>
+
     <tr>
     <td>Bulk Email on Preview</td>
     <td>Send the email version of the resource to a list of subscribers (not implementd).</td>
     <td>No</td>
     </tr>
 
-    </tbody>
+    <tr>
+        <td>Groups</td>
+        <td>Comma-separated list of User Groups to send to.</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td>Tags</td>
+        <td>Comma-separated list of tags to select users by. (A comma-separated list of tags goes in the comment field of the User Profile.) </td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td>Batch Size</td>
+        <td>Number of emails to send at one time.</td>
+        <td>50</td>
+    </tr>
+
+    <tr>
+            <td>Batch Delay</td>
+            <td>Delay in seconds between batches.</td>
+            <td>1</td>
+    </tr>
+    <tr>
+                <td>Item Delay</td>
+                <td>Delay in seconds between emails.</td>
+                <td>.51</td>
+    </tr>
+
+</tbody>
 </table>
 
 
@@ -121,7 +163,7 @@ These values are not set by default, because if they were, every time you previe
     <tr>
         <td>template_list</td>
         <td>(optional but highly recommended) Comma-separated list of Template IDs. List all templates used by resources that might be emailed. This will speed up the site by preventing the plugin from running for pages that will not be emailed. Use no spaces in the list.</td>
-        <td>''</td>
+        <td></td>
     </tr>
 
     </tbody>

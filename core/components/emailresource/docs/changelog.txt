@@ -1,5 +1,10 @@
 Changelog for EmailResource
 
+EmailResource 1.1.2-rc1
+-----------------------
+Minor bugs fixed
+Implemented tag-based sending
+
 EmailResource 1.1.1
 -------------------
 Fixed issues with full URLs
