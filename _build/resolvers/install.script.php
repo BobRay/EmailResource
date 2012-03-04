@@ -34,6 +34,9 @@
  * use $object->xpdo
  */
 
+/* @var $modx modX
+   @var $object modX */
+
 $modx =& $object->xpdo;
 
 /* Connecting plugins to the appropriate system events and
@@ -58,6 +61,8 @@ $connectPropertySets = false;
 $success = true;
 
 $modx->log(xPDO::LOG_LEVEL_INFO, 'Running PHP Resolver.');
+
+/* @var $options array */
 switch ($options[xPDOTransport::PACKAGE_ACTION]) {
     /* This code will execute during an install */
     case xPDOTransport::ACTION_INSTALL:
@@ -75,6 +80,8 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
 
                     $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigning Events to Plugin ' . $plugin);
                     foreach ($pluginEvents as $k => $pluginEvent) {
+                        /* @var $pe modPluginEvent */
+                        /* @var $pluginObj modPlugin */
                         $pe = $modx->newObject('modPluginEvent');
                         $pe->set('pluginid', $pluginObj->get('id'));
                         $pe->set('event', $pluginEvent);
@@ -89,11 +96,12 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
         }
 
         /* Connect TVs to to the default template */
-
+        /* @var $categoryObj modCategory */
         if ($hasTemplateVariables) {
             $categoryObj = $modx->getObject('modCategory', array('category' => $category));
             if (!$categoryObj) {
                 $modx->log(xPDO::LOG_LEVEL_INFO, 'Could not retrieve category object: ' . $category);
+                $categoryId = 0;
             } else {
                 $categoryId = $categoryObj->get('id');
             }
@@ -107,6 +115,9 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                 $tvs = $modx->getCollection('modTemplateVar', array('category' => $categoryId));
                 //$template->addMany($tvs);
                 //$template->save();
+                /* @var $tvt modTemplateVarTemplate */
+                /* @var $tv modTemplateVar */
+
                 foreach($tvs as $tv) {
                     $tvt = $modx->newObject('modTemplateVarTemplate');
                     $tvt->set('tmplvarid',$tv->get('id'));
@@ -119,6 +130,7 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                     require MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
                     // foreach ($templates as $template) {
                     foreach ($tvs as $tv) {
+                        /* @var $_lang array */
                         /* set TV description from language file */
                         $descKey = $tv->get('description');
                         $tv->set('description', $_lang[$descKey]);
