@@ -31,8 +31,8 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','EmailResource');
 define('PKG_NAME_LOWER','emailresource');
-define('PKG_VERSION','1.1.1');
-define('PKG_RELEASE','beta1');
+define('PKG_VERSION','1.1.2');
+define('PKG_RELEASE','rc1');
 define('PKG_CATEGORY','EmailResource');
 
 /* Set package options - you can turn these on one-by-one
