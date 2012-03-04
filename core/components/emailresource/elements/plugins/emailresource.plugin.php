@@ -35,9 +35,9 @@
  * This extra would not exist without the generous support provided by WorkDay Media (http://www.workdaymedia.com.au/)
  */
 
-/* ToDo: Correct file and URL paths */
+
 /* ToDo: Internationalize error messages */
-/* ToDo: PhpDoc stuff */
+/* @var $modx modX */
 
 
 $sp =& $scriptProperties;
@@ -62,10 +62,6 @@ if (!empty($templates)) {
 
 }
 unset($templates);
-
-
-/* only do this if you need lexicon strings */
-// $modx->lexicon->load('emailresource:default');
 
 $er = new EmailResource($modx, $sp);
 
@@ -102,7 +98,7 @@ if ($emailit || $preview || $sendTestEmail) {
 }
 
 /* turn the TVs off to prevent accidental resending */
-
+/* @var $tv modTemplateVar */
 $tv = $modx->getObject('modTemplateVar', array('name' => 'SendTestEmail'));
 $tv->setValue($modx->resource->get('id'), 'No');
 $tv->save();

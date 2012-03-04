@@ -486,5 +486,3 @@ class EmailResource
 
 
 } /* end class */
-
-
