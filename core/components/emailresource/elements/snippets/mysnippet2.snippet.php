@@ -1,4 +1,6 @@
 <?php
+
+/* Unused. Left here for possible future use */
 /**
  * EmailResource
  * Copyright 2011 Bob Ray <http:bobsguides.com>
@@ -24,9 +26,11 @@
  *
  * Description
  *
- * /
 
-/** Example properties
+/**
+  @version Version 1.0.0 Beta-1
+
+ /** Example properties
  * &package emailresource
  *
  *  Required Properties:
@@ -36,12 +40,4 @@
  *    @property property1 - (string) Description; default value.
  */
 
-
-/* Example of how to use a system setting to load a class file
-
-require_once $modx->getOption('np.core_path', null, $modx->getOption('core_path') . 'components/emailresource/') . 'classes/emailresource.class.php';
-
-*/
-
-/* Your snippet code here */
 ?>
