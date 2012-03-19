@@ -36,14 +36,14 @@
 
 <p>As of EmailResource version 1.1.2, you can email a resource to all members of specified User Groups. Put a comma-separated list of User Groups in the Groups TV and set &quot;Bulk Email on Preview&quot; to &quot;Yes&quot;. If you have tags set up (see below), you can also fill in the Tags box. When you preview the resource by clicking on the &quot;View&quot; button at the upper right, the emails will be sent. Be sure to *save* the resource before previewing or no emails will be sent.</p>
   
-<p>When you send bulk emails, EmailResource will create a log file for each send in the core/components/emailresource/logs directory. The filename will be based on the date of the send.</p>        
+<p>When you send bulk emails, EmailResource will create a log file for each send in the core/components/emailresource/logs directory. The filename will be based on the resource's alias and the date of the send.</p>
         
 
 <h3>Tag-based Sending</h3>
 
-<p>You can place a comma-separated list of tags in the 'comment' field of the User Profile for each User. If there are tags present in that field and you specify tags in the Tags TV, only Users with corresponding tags will receive the email.</p>
+<p>You can place a comma-separated list of tags in the 'comment' field of the User Profile for each User. If there are tags present in that field and you specify tags in the Tags TV, only Users with corresponding tags will receive the email. You must still specify the User Groups to send to in the &quot;Groups&quot; TV.</p>
 
-<p>The Subscribe package will allow Users to register on the site and select tags you define. The tags will be placed in the 'comment' field of the User's Profile.</p>
+<p>The Subscribe package will allow Users to register on the site and select tags you define. The tags will be placed in the 'comment' field of the User's Profile for use by EmailResource.</p>
 
 <h3>EmailResource Template Variables</h3>
 <table class="properties">

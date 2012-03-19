@@ -97,7 +97,7 @@ class EmailResource
         $this->userClass = $this->modx->getOption('userClass',$this->props,'modUser');
         $this->profileAlias = $this->modx->getOption('profileAlias',$this->props,'Profile');
         $this->profileClass = $this->modx->getOption('profileClass',$this->props,'modUserProfile');
-        $this->logFile = $this->corePath . 'logs/' . date('Y-m-d-h.i.sa');
+        $this->logFile = $this->corePath . 'logs/' . $this->modx->resource->get('alias') . '--'. date('Y-m-d-h.i.sa');
         $this->errors = array();
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
         $this->tags = $this->modx->resource->getTVValue('Tags');
