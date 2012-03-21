@@ -105,6 +105,21 @@ $tv->save();
 $tv = $modx->getObject('modTemplateVar', array('name' => 'EmailOnPreview'));
 $tv->setValue($modx->resource->get('id'), 'No');
 $tv->save();
+/* Need to change the TV values in memory too */
+
+$fields = array
+        (
+            'SendTestEmail',
+            'No',
+            'default',
+            '',
+            'option',
+        );
+$modx->resource->set('SendTestEmail', $fields);
+$fields[0] = 'EmailOnPreview';
+$modx->resource->set('EmailOnPreview', $fields);
+
+/* Work starts here */
 
 if ($emailit || $sendTestEmail) {
     $preview = true;
