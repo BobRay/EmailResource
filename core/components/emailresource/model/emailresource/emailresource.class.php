@@ -185,7 +185,7 @@ class EmailResource
     {
         $root = MODX_BASE_PATH;
         //$assets_path = $root . 'assets/components/emailresource/';
-        $core_path = $root . 'core/components/emailresource/';
+        $core_path = MODX_CORE_PATH . 'components/emailresource/';
         require $core_path . 'model/emailresource/css_to_inline_styles.class.php';
 
         $css = '';
@@ -295,6 +295,7 @@ class EmailResource
                 /* fall back to pagetitle if longtitle is empty */
                 $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
         $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
+        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $this->html);
         $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
         $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
         $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
