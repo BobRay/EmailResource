@@ -209,6 +209,7 @@ class EmailResource
                     if (empty($tempCss)) {
                         $this->setError('Could not get chunk content: ' . $cssFile);
                     }
+                    break;
                 default:
                 case 'FILE':
                     $tempCss = file_get_contents($this->cssBasePath . $cssFile);
