@@ -1,5 +1,12 @@
 Changelog for EmailResource
 
+EmailResource 1.1.3-pl
+----------------------
+Sends multi-part email
+Fixed bug with install on moved core
+Fixed bug with install when no lang file for manager_language
+Added Russian translation
+
 EmailResource 1.1.2-rc2
 -----------------------
 Fixed bug with persisting TV values
