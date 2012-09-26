@@ -126,8 +126,13 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                 }
 
                 if (!empty($tvs)) {
-
-                    require MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
+                    $langFile = MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
+                    if (file_exists($langFile)) {
+                        include MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
+                    } else {
+                        include MODX_BASE_PATH . 'core/components/emailresource/lexicon/en/tvs.inc.php';
+                    }
+                    unset($langFile);
                     // foreach ($templates as $template) {
                     foreach ($tvs as $tv) {
                         /* @var $_lang array */
