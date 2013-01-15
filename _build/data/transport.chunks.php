@@ -31,19 +31,11 @@ $chunks = array();
 $chunks[1]= $modx->newObject('modChunk');
 $chunks[1]->fromArray(array(
     'id' => 1,
-    'name' => 'MyChunk1',
-    'description' => 'MyChunk1 for EmailResource',
-    'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/mychunk1.chunk.tpl'),
+    'name' => 'unsubscribeTpl',
+    'description' => 'Unsubscribe chunk for EmailResource',
+    'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/unsubscribetpl.chunk.tpl'),
     'properties' => '',
 ),'',true,true);
 
-$chunks[2]= $modx->newObject('modChunk');
-$chunks[2]->fromArray(array(
-    'id' => 2,
-    'name' => 'MyChunk2',
-    'description' => 'MyChunk2 for entire EmailResource',
-    'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/mychunk2.chunk.tpl'),
-    'properties' => '',
-),'',true,true);
 
 return $chunks;
