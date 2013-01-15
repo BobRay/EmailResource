@@ -136,7 +136,7 @@ class EmailResource
         $this->itemDelay = empty($itemDelay)? .51 : $itemDelay;
 
         /* Unsubscribe settings */
-        $unSubId = $this->modx->getOption('sbs_manage_prefs_page_id', null, null);
+        $unSubId = $this->modx->getOption('sbs_unsubscribe_page_id', null, null);
         $this->unSubUrl = $this->modx->makeUrl($unSubId, "", "", "full");
         $subscribeCorePath = $this->modx->getOption('subscribe.core_path', null, $this->modx->getOption('core_path', null, MODX_CORE_PATH) . 'components/subscribe/');
         require_once($subscribeCorePath . 'model/subscribe/unsubscribe.class.php');
