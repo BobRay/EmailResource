@@ -133,7 +133,9 @@ if ($emailit || $sendTestEmail) {
     if ($sendTestEmail) {
         /* send test email */
         $username = $modx->user->get('username');
-        $er->sendTestEmail($testEmailAddress, $username);
+        $profile = $modx->user->getOne('Profile');
+        $uid = $profile->get('id');
+        $er->sendTestEmail($testEmailAddress, $username, $uid);
     }
 }
 

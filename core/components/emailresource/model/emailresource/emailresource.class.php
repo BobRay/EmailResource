@@ -53,6 +53,7 @@ class EmailResource
 {
 
     protected $html;
+    /* @var $modx modX */
     protected $modx;
     protected $props;
     protected $cssMode;
@@ -75,14 +76,18 @@ class EmailResource
     protected $sortBy;
     protected $sortByAlias;
     protected $tags;
+    protected $unSubUrl;
+    /* @var $unSub Unsubscribe */
+    protected $unSub;
+    protected $unSubTpl;
 
 
     public function __construct(&$modx, &$props)
     {
-
+        /* @var $modx modX */
         $this->modx =& $modx;
         $this->props =& $props;
-        /* @var $modx modX */
+
         /* er paths; Set the er. System Settings only for development */
         $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/emailresource/');
         $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/emailresource/');
@@ -90,8 +95,7 @@ class EmailResource
 
     }
 
-    public function init()
-    {
+    public function init() {
         $this->sortBy = $this->modx->getOption('sortBy',$this->props,'username');
         $this->sortByAlias = $this->modx->getOption('sortByAlias',$this->props,'modUser');
         $this->userClass = $this->modx->getOption('userClass',$this->props,'modUser');
@@ -131,6 +135,14 @@ class EmailResource
         $itemDelay = $this->modx->resource->getTVValue('itemDelay');
         $this->itemDelay = empty($itemDelay)? .51 : $itemDelay;
 
+        /* Unsubscribe settings */
+        $unSubId = $this->modx->getOption('sbs_manage_prefs_page_id', null, null);
+        $this->unSubUrl = $this->modx->makeUrl($unSubId, "", "", "full");
+        $subscribeCorePath = $this->modx->getOption('subscribe.core_path', null, $this->modx->getOption('core_path', null, MODX_CORE_PATH) . 'components/subscribe/');
+        require_once($subscribeCorePath . 'model/subscribe/unsubscribe.class.php');
+        $unSubTpl = $this->modx->getOption('unsubscribeTpl', $this->props, 'unsubscribeTpl');
+        $this->unSub = new Unsubscribe($this->modx, $this->props);
+        $this->unSubTpl = $this->modx->getChunk($unSubTpl);
     }
 
     public function fullUrls($base)
@@ -142,7 +154,7 @@ class EmailResource
 
         /* remove space around = sign */
         //$html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
-        $html =& preg_replace('@(?<=href|src)\s*=\s*@', '=', $this->html);
+        $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $this->html);
 
         /* fix google link weirdness */
         $html = str_ireplace('google.com/undefined', 'google.com',$html);
@@ -295,8 +307,8 @@ class EmailResource
                 $mail_subject = empty($mail_subject) ? $this->modx->resource->get('longtitle') : $mail_subject;
                 /* fall back to pagetitle if longtitle is empty */
                 $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
-        $this->modx->mail->set(modMail::MAIL_BODY, $this->html);
-        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $this->html);
+        //$this->modx->mail->set(modMail::MAIL_BODY, $this->html);
+        // $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $this->html);
         $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
         $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
         $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
@@ -306,8 +318,21 @@ class EmailResource
 
     }
 
-    public function sendMail($address, $name)
+    public function sendMail($address, $name, $profileId)
     {
+        $profile = $this->modx->getObject('modUserProfile', $profileId);
+        $url = $this->unSub->createUrl($this->unSubUrl,$profile);
+        $tpl = str_replace('[[+unsubscribeUrl]]', $url, $this->unSubTpl);
+        if (stristr($this->html, '</body>')) {
+            $html = $this->html;
+            $html = str_replace('</body>', "\n". $tpl . "\n" .  '</body>', $html);
+        } else {
+            $html = $this->html . $tpl;
+        }
+        my_debug("Tpl: " . $tpl);
+        my_debug("HTML: " . $html);
+        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $html);
+        $this->modx->mail->set(modMail::MAIL_BODY, $html);
         $this->modx->mail->address('to', $address, $name);
         $success = $this->modx->mail->send();
         if (! $success) {
@@ -408,6 +433,7 @@ class EmailResource
                             'email' => $email,
                             'fullName' => $fullName,
                             'userTags' => $userTags,
+                            'profileId' => $profile->get('id'),
                         );
                     } else {
                         $this->setError('User: ' . $username . ' has no email address');
@@ -434,7 +460,7 @@ class EmailResource
             //fwrite($fp,print_r($recipients, true));
         }
         foreach ($recipients as $recipient) {
-            if ($this->sendMail($recipient['email'], $recipient['fullName'])) {
+            if ($this->sendMail($recipient['email'], $recipient['fullName'], $recipient['profileId'])) {
                 if ($fp) {
                     fwrite($fp, 'Successful send to: ' . $recipient['email'] . ' (' . $recipient['fullName'] . ') User Tags: ' . $recipient['userTags'] . "\n");
                 }
@@ -461,12 +487,13 @@ class EmailResource
 
 
     }
-    public function sendTestEmail($address, $name){
+    public function sendTestEmail($address, $name, $profileId){
         if (empty($address)) {
             $this->setError('TestEmailAddress is empty; test email not sent');
             return;
         }
-        if (! $this->sendMail($address, $name)) {
+
+        if (! $this->sendMail($address, $name, $profileId)) {
             $this->setError('Test email not sent');
         }
         return;
