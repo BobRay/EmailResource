@@ -142,6 +142,7 @@ class EmailResource
         require_once($subscribeCorePath . 'model/subscribe/unsubscribe.class.php');
         $unSubTpl = $this->modx->getOption('unsubscribeTpl', $this->props, 'unsubscribeTpl');
         $this->unSub = new Unsubscribe($this->modx, $this->props);
+        $this->unSub->init();
         $this->unSubTpl = $this->modx->getChunk($unSubTpl);
     }
 
@@ -321,7 +322,7 @@ class EmailResource
     public function sendMail($address, $name, $profileId)
     {
         $profile = $this->modx->getObject('modUserProfile', $profileId);
-        $url = $this->unSub->createUrl($this->unSubUrl,$profile);
+        $url = $this->unSub->createUrl($this->unSubUrl, $profile);
         $tpl = str_replace('[[+unsubscribeUrl]]', $url, $this->unSubTpl);
         if (stristr($this->html, '</body>')) {
             $html = $this->html;
@@ -329,8 +330,8 @@ class EmailResource
         } else {
             $html = $this->html . $tpl;
         }
-        my_debug("Tpl: " . $tpl);
-        my_debug("HTML: " . $html);
+        // my_debug("Tpl: " . $tpl);
+        // my_debug("HTML: " . $html);
         $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $html);
         $this->modx->mail->set(modMail::MAIL_BODY, $html);
         $this->modx->mail->address('to', $address, $name);

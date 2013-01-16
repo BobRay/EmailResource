@@ -2,11 +2,10 @@
 /**
  * EmailResource plugin
  *
- * Copyright 2011 Bob Ray <http:bobsguides.com>
+ * Copyright 2011-2013 Bob Ray <http://bobsguides.com>
  *
  * @author Bob Ray <http:bobsguides.com>
- * @version Version 1.0.0 Beta-1
- * 8/20/11
+ * Created 8/20/11
  *
  * EmailResource is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -134,8 +133,15 @@ if ($emailit || $sendTestEmail) {
         /* send test email */
         $username = $modx->user->get('username');
         $profile = $modx->user->getOne('Profile');
-        $uid = $profile->get('id');
-        $er->sendTestEmail($testEmailAddress, $username, $uid);
+        if (empty($profile)) {
+            my_debug('Profile is empty');
+        }
+        $pid = $profile->get('id');
+        my_debug('Profile ID: ' . $pid);
+        my_debug('Email: ' . $testEmailAddress);
+        my_debug('Username: ' . $username);
+        my_debug('Full Name: ' . $profile->get('fullname'));
+        $er->sendTestEmail($testEmailAddress, $username, $pid);
     }
 }
 
