@@ -133,14 +133,12 @@ if ($emailit || $sendTestEmail) {
         /* send test email */
         $username = $modx->user->get('username');
         $profile = $modx->user->getOne('Profile');
-        if (empty($profile)) {
-            my_debug('Profile is empty');
-        }
+
         $pid = $profile->get('id');
-        my_debug('Profile ID: ' . $pid);
-        my_debug('Email: ' . $testEmailAddress);
-        my_debug('Username: ' . $username);
-        my_debug('Full Name: ' . $profile->get('fullname'));
+        // my_debug('Profile ID: ' . $pid);
+        // my_debug('Email: ' . $testEmailAddress);
+        // my_debug('Username: ' . $username);
+        // my_debug('Full Name: ' . $profile->get('fullname'));
         $er->sendTestEmail($testEmailAddress, $username, $pid);
     }
 }
