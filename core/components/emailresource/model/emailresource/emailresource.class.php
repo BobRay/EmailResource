@@ -319,17 +319,24 @@ class EmailResource
 
     }
 
-    public function sendMail($address, $name, $profileId)
-    {
+    public function injectUnsubscribe($profileId) {
         $profile = $this->modx->getObject('modUserProfile', $profileId);
         $url = $this->unSub->createUrl($this->unSubUrl, $profile);
         $tpl = str_replace('[[+unsubscribeUrl]]', $url, $this->unSubTpl);
         if (stristr($this->html, '</body>')) {
             $html = $this->html;
-            $html = str_replace('</body>', "\n". $tpl . "\n" .  '</body>', $html);
+            $html = str_replace('</body>', "\n" . $tpl . "\n" . '</body>', $html);
         } else {
             $html = $this->html . $tpl;
         }
+        unset($profile);
+        return $html;
+
+    }
+
+    public function sendMail($address, $name, $profileId)
+    {
+        $html = $this->injectUnsubscribe($profileId);
         // my_debug("Tpl: " . $tpl);
         // my_debug("HTML: " . $html);
         $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $html);

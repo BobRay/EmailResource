@@ -83,13 +83,11 @@ if ($emailit || $preview || $sendTestEmail) {
     $er->fullUrls($base_url);
     /* Fix image attributes */
     $er->imgAttributes();
-    //$html = $er->getHtml();
     if ($inlineCss) {
         $er->inlineCss();
-        $output = $er->getHtml();
     }
 
-    $output = $er->getHtml();
+    // $output = $er->getHtml();
 
 } else {
     /* just return without modifying output */
@@ -119,6 +117,10 @@ $modx->resource->set('EmailOnPreview', $fields);
 
 /* Work starts here */
 
+$username = $modx->user->get('username');
+$profile = $modx->user->getOne('Profile');
+$profileId = $profile->get('id');
+unset($profile);
 if ($emailit || $sendTestEmail) {
     $preview = true;
     //$er->setMailHeaders();
@@ -131,15 +133,12 @@ if ($emailit || $sendTestEmail) {
 
     if ($sendTestEmail) {
         /* send test email */
-        $username = $modx->user->get('username');
-        $profile = $modx->user->getOne('Profile');
 
-        $pid = $profile->get('id');
         // my_debug('Profile ID: ' . $pid);
         // my_debug('Email: ' . $testEmailAddress);
         // my_debug('Username: ' . $username);
         // my_debug('Full Name: ' . $profile->get('fullname'));
-        $er->sendTestEmail($testEmailAddress, $username, $pid);
+        $er->sendTestEmail($testEmailAddress, $username, $profileId);
     }
 }
 
@@ -158,10 +157,19 @@ if (!empty($errors)) {
         $header .= '<h3>Preview of Email:</h3>';
     }
 }
-$output = $er->getHtml();
+
+if ($preview) {
+   $output = $er->injectUnsubscribe($profileId);
+} else {
+    $output = $er->getHtml();
+}
+/* Make unprocessed tags visible */
 $output = str_replace('[[', '[ [', $output);
+
+/* Add header message */
 $output = str_replace('<body>', '<body>' . $header . "\n\n", $output);
 
+/* Set resource output */
 $modx->resource->_output = $output;
 
 
