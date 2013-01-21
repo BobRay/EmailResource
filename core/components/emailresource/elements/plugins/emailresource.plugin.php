@@ -65,13 +65,13 @@ unset($templates);
 $er = new EmailResource($modx, $sp);
 
 /* Get TV values */
+$oldErrorLevel = error_reporting(E_ALL & ~(E_STRICT | E_NOTICE));
 $preview = $modx->resource->getTVValue('PreviewEmail') == 'Yes';
 $emailit = $modx->resource->getTVValue('EmailOnPreview') == 'Yes';
 $inlineCss = $modx->resource->getTVValue('InlineCss') == 'Yes';
 $sendTestEmail = $modx->resource->getTVValue('SendTestEmail') == 'Yes';
-
-
 $testEmailAddress = $modx->resource->getTVValue('EmailAddressForTest');
+error_reporting($oldErrorLevel);
 
 
 if ($emailit || $preview || $sendTestEmail) {

@@ -103,6 +103,7 @@ class EmailResource
         $this->profileClass = $this->modx->getOption('profileClass',$this->props,'modUserProfile');
         $this->logFile = $this->corePath . 'logs/' . $this->modx->resource->get('alias') . '--'. date('Y-m-d-h.i.sa');
         $this->errors = array();
+        $oldErrorLevel = error_reporting(E_ALL & ~(E_STRICT | E_NOTICE));
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
         $this->tags = $this->modx->resource->getTVValue('Tags');
 
@@ -135,6 +136,7 @@ class EmailResource
         $itemDelay = $this->modx->resource->getTVValue('itemDelay');
         $this->itemDelay = empty($itemDelay)? .51 : $itemDelay;
 
+        error_reporting($oldErrorLevel);
         /* Unsubscribe settings */
         $unSubId = $this->modx->getOption('sbs_unsubscribe_page_id', null, null);
         $this->unSubUrl = $this->modx->makeUrl($unSubId, "", "", "full");
