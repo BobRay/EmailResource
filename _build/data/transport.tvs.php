@@ -14,7 +14,7 @@ $templateVariables[0]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => 'No',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -33,7 +33,7 @@ $templateVariables[1]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => 'No',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -52,7 +52,7 @@ $templateVariables[2]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => 'No',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -71,7 +71,7 @@ $templateVariables[3]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -90,7 +90,7 @@ $templateVariables[4]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT FILE',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -109,7 +109,7 @@ $templateVariables[5]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT emailresource.css',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -128,7 +128,7 @@ $templateVariables[6]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT Yes',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -147,7 +147,7 @@ $templateVariables[7]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT {modx_base_path}assets/components/emailresource/css/',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -168,7 +168,7 @@ $templateVariables[8]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -187,7 +187,7 @@ $templateVariables[9]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -206,7 +206,7 @@ $templateVariables[10]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT 50',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -225,7 +225,7 @@ $templateVariables[11]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT 1',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
@@ -244,7 +244,7 @@ $templateVariables[12]->fromArray(array(
     'display' => 'default',
     'display_params' => '',
     'default_text' => '@INHERIT .51',
-    'properties' => 'array()',
+    'properties' => array(),
     'lexicon' => 'emailresource:tvs',
 ),'',true,true);
 
