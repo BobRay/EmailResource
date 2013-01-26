@@ -64,6 +64,8 @@
 
 <p>If Subscribe is installed, EmailResource will include an unsubscribe link at the bottom of every email. This is required for all bulk email by the USA CAN-spam act, so it is *very* strongly recommended. If Subscribe Version 1.2.0 or later is installed, this will be done automatically. The link is injected just above the closing <fixedpre>body</fixedpre> tag, or appended to the end of the message if there is no <fixedpre>body</fixedpre> tag.</p>
 
+<p>The unsubscribe message comes from the Tpl chunk named in the <fixedpre>unsubscribe_tpl</fixedpre> property. The default chunk is called <fixedpre>unsubscribeTpl</fixedpre>, but if you need to modify it, you should duplicate it (call it <fixedpre>myunsubscribeTpl</fixedpre> and set that name in the property so it won't be overwritten if you upgrade or reinstall EmailResource. Be sure to have the <fixedpre>[[+unsubscribeUrl]]></fixedpre> tag in your chunk inside an href tag. EmailResource will replace the tag with a secure URL that is different for each user.</p>
+
 <h3>CSS files</h3>
 <p>In order for EmailResources to find your CSS files, they either have to be placed in chunks or resources, or all exist in the same directory (defined in the CssBasePath TV). If your CSS files specify background images, be sure that the url specified in the CSS file contains a full, absolute URL to each image.</p>
 
@@ -198,6 +200,11 @@
         <td>mail_subject</td>
         <td>(optional) MAIL_SUBJECT setting for email.</td>
         <td>Resource longtitle, or pagetitle if longtitle is empty</td>
+    </tr>
+    <tr>
+        <td>unsubscribe_tpl</td>
+        <td>name of the Tpl chunk to use for the Unsubscribe link</td>
+        <td>unsubscribeTpl</td>
     </tr>
     <tr>
         <td>template_list</td>

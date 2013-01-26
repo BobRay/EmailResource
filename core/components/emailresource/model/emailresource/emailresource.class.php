@@ -152,7 +152,7 @@ class EmailResource
         $this->unSubUrl = $this->modx->makeUrl($unSubId, "", "", "full");
         $subscribeCorePath = $this->modx->getOption('subscribe.core_path', null, $this->modx->getOption('core_path', null, MODX_CORE_PATH) . 'components/subscribe/');
         require_once($subscribeCorePath . 'model/subscribe/unsubscribe.class.php');
-        $unSubTpl = $this->modx->getOption('unsubscribeTpl', $this->props, 'unsubscribeTpl');
+        $unSubTpl = $this->modx->getOption('unsubscribe_tpl', $this->props, 'unsubscribeTpl');
         $this->unSub = new Unsubscribe($this->modx, $this->props);
         $this->unSub->init();
         $this->unSubTpl = $this->modx->getChunk($unSubTpl);

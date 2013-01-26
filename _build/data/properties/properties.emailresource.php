@@ -56,6 +56,14 @@ $properties = array(
         'value' => '',
         'lexicon' => 'emailresource:properties',
     ),
+    array(
+        'name' => 'unsubscribe_tpl',
+        'desc' => 'er_unsubscribe_tpl_desc',
+        'type' => 'textfield',
+        'options' => '',
+        'value' => '',
+        'lexicon' => 'emailresource:properties',
+    ),
 );
 
 return $properties;
