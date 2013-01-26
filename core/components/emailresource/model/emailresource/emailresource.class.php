@@ -84,19 +84,27 @@ class EmailResource
     protected $userTagsExtendedField = '';
 
 
-    public function __construct(&$modx, &$props)
-    {
-        /* @var $modx modX */
+    /**
+     * EmailResource class contstructor
+     *
+     * @param $modx modX
+     * @param $props array
+     */
+    public function __construct(&$modx, &$props) {
+
         $this->modx =& $modx;
         $this->props =& $props;
 
-        /* er paths; Set the er. System Settings only for development */
+        /* er paths; Set the er. System Settings (these are only for development) */
         $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/emailresource/');
         $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/emailresource/');
         $this->assetsUrl = $this->modx->getOption('er.assets_url', null, MODX_ASSETS_URL . 'components/emailresource/');
 
     }
 
+    /**
+     * Initialize properties and Tpls for class
+     */
     public function init() {
         $useCommentField = $this->modx->getOption('sbs_use_comment_field', null, true);
         if (! $useCommentField) {
@@ -113,6 +121,7 @@ class EmailResource
         $this->profileClass = $this->modx->getOption('profileClass',$this->props,'modUserProfile');
         $this->logFile = $this->corePath . 'logs/' . $this->modx->resource->get('alias') . '--'. date('Y-m-d-h.i.sa');
         $this->errors = array();
+        /* make sure plugin can't crash if E_NOTICE is on */
         $oldErrorLevel = error_reporting(E_ALL & ~(E_STRICT | E_NOTICE));
         $cssBasePath = $this->modx->resource->getTVValue('CssBasePath');
         $this->tags = $this->modx->resource->getTVValue('Tags');
@@ -146,6 +155,7 @@ class EmailResource
         $itemDelay = $this->modx->resource->getTVValue('itemDelay');
         $this->itemDelay = empty($itemDelay)? .51 : $itemDelay;
 
+        /* restore error reporting level */
         error_reporting($oldErrorLevel);
         /* Unsubscribe settings */
         $unSubId = $this->modx->getOption('sbs_unsubscribe_page_id', null, null);
@@ -160,7 +170,7 @@ class EmailResource
 
     /**
      * Get user tags for the current user from comment field or User Profile extended field
-     * @param $profile modUserProfile
+     * @param $profile modUserProfile - profile of the logged-in user
      */
     public function getUserTags($profile) {
 
@@ -212,6 +222,9 @@ class EmailResource
         return $html;
     }
 
+    /**
+     * Fix images attributes that confuse some mail rendering engines
+     */
     public function imgAttributes() {
         $html =& $this->html;
         $replace = array (
@@ -228,6 +241,9 @@ class EmailResource
 
     }
 
+    /**
+     * Move CSS from files into inline style tags
+     */
     public function inlineCss()
     {
         $root = MODX_BASE_PATH;
@@ -273,11 +289,23 @@ class EmailResource
         $this->html = $ctis->convert();
     }
 
+    /**
+     * Replaces strings based on an associative array
+     *
+     * @param array $replace - array of needle => replacement pairs
+     * @param $subject - string to do replacements in
+     * @return string - original string with values replaced
+     */
     protected function strReplaceAssoc(array $replace, $subject) {
            return str_replace(array_keys($replace), array_values($replace), $subject);
     }
 
 
+    /**
+     * Debugging code -- writes output to chunk named 'debug'
+     * @param $message - message to write
+     * @param bool $clear - if set, clears previous entries
+     */
     public function my_debug($message, $clear = false)
     {
         /* @var $chunk modChunk */
@@ -297,13 +325,29 @@ class EmailResource
         $chunk->setContent($content);
         $chunk->save();
     }
+
+    /**
+     * Sets the HTML content for the email
+     *
+     * @param $html string
+     */
     public function setHtml($html) {
         $this->html = $html;
     }
+
+    /**
+     * Gets the email content of the email
+     *
+     * @return string
+     */
     public function getHtml() {
         return $this->html;
     }
 
+    /**
+     * Sets the mail headers for the email
+     *
+     */
     public function setMailHeaders()
     {
         $mail_from = $this->modx->getOption('mail_from', $this->props);
@@ -323,6 +367,10 @@ class EmailResource
         /* fall back to pagetitle if longtitle is empty */
         $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
     }
+
+    /**
+     * Initializes the MODX mailer
+     */
     public function initializeMailer() {
         set_time_limit(0);
         $this->modx->getService('mail', 'mail.modPHPMailer');
@@ -353,14 +401,22 @@ class EmailResource
 
     }
 
+    /**
+     * Injects the unsubscribe link into the message
+     *
+     * @param $profileId int -- ID of the user's profile
+     * @return string - the full email including the unsubscribe link
+     */
     public function injectUnsubscribe($profileId) {
         $profile = $this->modx->getObject('modUserProfile', $profileId);
         $url = $this->unSub->createUrl($this->unSubUrl, $profile);
         $tpl = str_replace('[[+unsubscribeUrl]]', $url, $this->unSubTpl);
         if (stristr($this->html, '</body>')) {
+            /* inject link just above the closing body tag */
             $html = $this->html;
             $html = str_replace('</body>', "\n" . $tpl . "\n" . '</body>', $html);
         } else {
+            /* append link to the end if there is no body tag */
             $html = $this->html . $tpl;
         }
         unset($profile);
@@ -368,6 +424,13 @@ class EmailResource
 
     }
 
+    /**
+     * Sends an individual email
+     * @param $address string - user's email address
+     * @param $name string - user's fullname (or username if fullname is empty)
+     * @param $profileId int - ID of the user's profile
+     * @return bool - true on success, false on failure
+     */
     public function sendMail($address, $name, $profileId)
     {
         $html = $this->injectUnsubscribe($profileId);
@@ -386,6 +449,11 @@ class EmailResource
 
     }
 
+    /**
+     * Sends emails to the entire list
+     * Logs successful sends, echoes failures
+     * @return bool - true on success false on failure
+     */
     public function sendBulkEmail()
     {
         /* @var $user modUser */
@@ -530,6 +598,14 @@ class EmailResource
 
 
     }
+
+    /**
+     * Sends test email
+     *
+     * @param $address string - email address to send to
+     * @param $name string - name of admin
+     * @param $profileId - ID of admin's user profile
+     */
     public function sendTestEmail($address, $name, $profileId){
         if (empty($address)) {
             $this->setError('TestEmailAddress is empty; test email not sent');
@@ -541,6 +617,12 @@ class EmailResource
         }
         return;
     }
+
+    /**
+     * Creates an HTML display showing messages in the error array
+     *
+     * @return string
+     */
     public function showErrorStrings() {
            $retVal = '';
            foreach ($this->errors as $error) {
@@ -549,9 +631,20 @@ class EmailResource
            return $retVal;
     }
 
+    /**
+     * Adds and error string to the errors array
+     *
+     * @param $error
+     */
     public function setError($error){
         $this->errors[] = $error;
     }
+
+    /**
+     * Returns the array of error messages
+     *
+     * @return int
+     */
     public function getErrors() {
         return count($this->errors);
     }
