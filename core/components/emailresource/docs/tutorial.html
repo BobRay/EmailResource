@@ -45,10 +45,24 @@
 
 <p>The <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> package will allow Users to register on the site and select tags you define. The tags will be automatically placed in the 'comment' field of the User's Profile (or in an extended field of the User Profile) for use by EmailResource. As of <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> Version 1.2.0, users can manage their tags on a &quot;Manage Preferences&quot; page.</p>
 
+<p>Using Subscribe is strongly recommended, but if you choose not to install it, you can still put the users' preferences (tags) in an extended field of the User Profile (say, because you need the <fixedpre>comment</fixedpre> field for something else). Just create two new System Settings:</p>
+
+<pre><fixedpre>
+    sbs_use_comment_field
+    sbs_extended_field
+</fixedpre></pre>
+
+<p>Set the first one to <fixedpre>No</fixedpre> and the second one to the name of the extended field you would like to use (the default is <fixedpre>interests</fixedpre>). If Subscribe is not installed, you will need to create the extended field for each user and list the tags in it manually. Be careful that they are spelled correctly.</p>
+
 <h3>User Group Management</h3>
 
-<p>You can create and assign the User Groups manually, but as with tags, the <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> extra will assign the User Groups automatically and will (optionally) let users manage their own User Group memberships. See the
+<p>You can create and assign the User Groups manually, but as with tags, the <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> extra will assign the User Groups and roles automatically and will (optionally) let users manage their own User Group memberships. See the
 <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> documentation for more information on how to use this feature.</p>
+
+<h3>Unsubscribe Link</h3>
+<p><b>Important: </b> In order to use this feature, you must have <a href="http://bobsguides.com/subscribe-tutorial.html">Subscribe</a> Version 1.2.0 or later installed.</p>
+
+<p>If Subscribe is installed, EmailResource will include an unsubscribe link at the bottom of every email. This is required for all bulk email by the USA CAN-spam act, so it is *very* strongly recommended. If Subscribe Version 1.2.0 or later is installed, this will be done automatically. The link is injected just above the closing <fixedpre>body</fixedpre> tag, or appended to the end of the message if there is no <fixedpre>body</fixedpre> tag.</p>
 
 <h3>CSS files</h3>
 <p>In order for EmailResources to find your CSS files, they either have to be placed in chunks or resources, or all exist in the same directory (defined in the CssBasePath TV). If your CSS files specify background images, be sure that the url specified in the CSS file contains a full, absolute URL to each image.</p>
