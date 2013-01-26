@@ -80,6 +80,8 @@ class EmailResource
     /* @var $unSub Unsubscribe */
     protected $unSub;
     protected $unSubTpl;
+    protected $userTagsMethod;
+    protected $userTagsExtendedField = '';
 
 
     public function __construct(&$modx, &$props)
@@ -96,6 +98,14 @@ class EmailResource
     }
 
     public function init() {
+        $useCommentField = $this->modx->getOption('sbs_use_comment_field', null, true);
+        if (! $useCommentField) {
+            $this->userTagsMethod = 'extended';
+            $this->userTagsExtendedField = $this->modx->getOption('sbs_extended_field', null, 'interests');
+        } else {
+            $this->userTagsMethod = 'comment';
+        }
+        $this->userTagsMethod =
         $this->sortBy = $this->modx->getOption('sortBy',$this->props,'username');
         $this->sortByAlias = $this->modx->getOption('sortByAlias',$this->props,'modUser');
         $this->userClass = $this->modx->getOption('userClass',$this->props,'modUser');
@@ -148,8 +158,30 @@ class EmailResource
         $this->unSubTpl = $this->modx->getChunk($unSubTpl);
     }
 
-    public function fullUrls($base)
-    {
+    /**
+     * Get user tags for the current user from comment field or User Profile extended field
+     * @param $profile modUserProfile
+     */
+    public function getUserTags($profile) {
+
+        if ($this->userTagsMethod = 'extended') {
+            $extended = $profile->get('extended');
+            $userTags = $extended[$this->userTagsExtendedField];
+        } else {
+            $userTags = $profile->get('comment');
+        }
+        return $userTags;
+
+    }
+
+
+    /**
+     * Convert URL in any form to a fully qualified URL
+     *
+     * @param $base string - sites base URL
+     * @return string - full URL
+     */
+    public function fullUrls($base) {
         /* extract domain name from $base */
         $splitBase = explode('//', $base);
         $domain = $splitBase[1];
@@ -404,12 +436,13 @@ class EmailResource
                     /* get the user's profile and extract email and fullname */
 
                     $profile = $user->getOne($this->profileAlias);
-                    $userTags = $profile->get('comment');
-                    if (! $profile) {
-                        $this->setError('No Profile for: ' . $username);
-                    } else {
+                    if ($profile) {
+                        $userTags = $this->getUserTags($profile);
                         $email = $profile->get('email');
                         $fullName = $profile->get('fullname');
+
+                    } else {
+                        $this->setError('User has no Profile');
                     }
 
                     /* fall back to username if fullname is empty */
