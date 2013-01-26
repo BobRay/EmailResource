@@ -1,5 +1,11 @@
 Changelog for EmailResource
 
+EmailResource 1.2.0-pl
+----------------------
+Fixes E_NOTICE bug with TVs
+Allows users to manage User Group Membership (using Subscribe)
+Sends Unsubscribe link in every email
+
 EmailResource 1.1.3-pl
 ----------------------
 Sends multi-part email
