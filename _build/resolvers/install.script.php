@@ -79,7 +79,7 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                 if (!empty ($pluginEvents) && $pluginObj) {
 
                     $modx->log(xPDO::LOG_LEVEL_INFO, 'Assigning Events to Plugin ' . $plugin);
-                    foreach ($pluginEvents as $k => $pluginEvent) {
+                    foreach ($pluginEvents as $key => $pluginEvent) {
                         /* @var $pe modPluginEvent */
                         /* @var $pluginObj modPlugin */
                         $pe = $modx->newObject('modPluginEvent');
