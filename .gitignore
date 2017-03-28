@@ -18,4 +18,4 @@ modext.js
 .idea/
 
 # ignore PHP files beginning with test
-test*.php
+# test*.php
