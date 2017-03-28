@@ -436,7 +436,7 @@ class EmailResource
         $html = $this->injectUnsubscribe($profileId);
         // my_debug("Tpl: " . $tpl);
         // my_debug("HTML: " . $html);
-        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $html);
+        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, strip_tags($html));
         $this->modx->mail->set(modMail::MAIL_BODY, $html);
         $this->modx->mail->address('to', $address, $name);
         $success = $this->modx->mail->send();
