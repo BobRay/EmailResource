@@ -17,8 +17,9 @@
 
 
 function fullUrls($base, $html) {
-    /* extract domain name from $base */
+    /* Extract domain name and protocol from $base */
     $splitBase = explode('//', $base);
+    $protocol = $splitBase[0];
     $domain = $splitBase[1];
     $domain = rtrim($domain, '/ ');
 
@@ -26,23 +27,30 @@ function fullUrls($base, $html) {
     //$html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
     $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $html);
 
-    /* fix google link weirdness */
+    /* Fix google link weirdness */
     $html = str_ireplace('google.com/undefined', 'google.com', $html);
 
-    /* add http to naked domain links so they'll be ignored later */
-    $html = str_ireplace('a href="' . $domain, 'a href="http://' . $domain, $html);
+    /* add base protocol to naked domain links so they'll be ignored later */
+    $html = str_ireplace('a href="' . $domain, 'a href="' . $protocol . '//' . $domain, $html);
 
-    /* standardize orthography of domain name */
+    /* Standardize orthography of domain name */
     $html = str_ireplace($domain, $domain, $html);
 
     /* Correct base URL, if necessary */
     $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
 
-    /* handle root-relative URLs */
-    $html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
+    /* Handle root-relative URLs */
+    //$html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="'.$server.'\3"', $html);
+    $html = preg_replace('@\<([^>]*) (href|src)="/([^#"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
 
-    /* handle base-relative URLs */
-    $html = preg_replace('@\<([^>]*) (href|src)="(?!http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
+    /* Handle base-relative URLs */
+    //$html = preg_replace('@\<([^>]*) (href|src)="(?!http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="'.$base.'\3"', $html);
+    $html = preg_replace('@\<([^>]*) (href|src)="(?!#|http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
+
+    preg_match('@([a-zA-Z])(\/\/)([a-zA-Z])@', $html, $matches);
+
+    /* Remove double slashes in path */
+    $html = preg_replace('@([a-zA-Z])(\/\/)([a-zA-Z])@', '\1/\3', $html);
 
     return $html;
 }
@@ -104,7 +112,8 @@ $cases = array(
     // Case 8
     array(
         'initial' => '<a href="www.domain.com/page1.html">www.domain.com/page1.html</a>',
-        'expected' => '<a href="' . $basePlaceholder . 'www.domain.com/page1.html">www.domain.com/page1.html</a>'
+        'expected' => '<a href="' .
+            $basePlaceholder . 'www.domain.com/page1.html">www.domain.com/page1.html</a>'
     ),
 
     // Case 9
@@ -126,13 +135,15 @@ $cases = array(
     ),
 
 
-
-
-
 );
-$i = 1;
+$i = 0;
 foreach ($cases as $case) {
-    echo "\n\n[Case " . $i++ . "]";
+    $i++;
+    if (5 != $i) {
+        // continue;
+    }
+    echo "\n\n[Case " . $i . "]";
+
     foreach ($bases as $base) {
         echo "\n\n**************************************************************";
         $initial = $case['initial'];
