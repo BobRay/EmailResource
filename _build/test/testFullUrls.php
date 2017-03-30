@@ -89,7 +89,7 @@ function fullUrls($base, $html) {
     /* get array of tags. Collects only the a or img part:
             <a href="somethings">
       or    <img src="something"> */
-    $pattern = '@<(?:a|img)[\s]+(?:href|src)[^>]+\>@i';
+    $pattern = '@<(?:a|img)[\s]+[^>]*(?:href|src)[^>]+\>@i';
     preg_match_all($pattern, $html, $matches);
     $tags = $matches[0];
 
@@ -213,6 +213,16 @@ $cases = array(
         'initial' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>',
         'expected' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>'
     ),
+    // Case 12
+    array(
+        'initial' =>  '<a style="color: Red;" href="/section1/page1.html#jumpto">/section1/page1.html#jumpto</a>',
+        'expected' => '<a style="color: Red;" href="' . $basePlaceholder . 'section1/page1.html#jumpto">/section1/page1.html#jumpto</a>'
+    ),
+    // Case 13
+    array(
+        'initial' => '<img style="border:none;" src="/section1/page1.jpg">/section1/page1.html#jumpto</img>',
+        'expected' => '<img style="border:none;" src="' . $basePlaceholder . 'section1/page1.jpg">/section1/page1.html#jumpto</img>'
+    ),
 
 
 );
@@ -226,10 +236,6 @@ $partOneFailCount = 0;
 $partTwoFailCount = 0;
 $partThreeFailCount = 0;
 
-$fullTexts = array();
-$fullExpecteds = array();
-
-
 $i = 0;
 $full = array();
 $fullExpected = array();
@@ -239,8 +245,9 @@ for ($k = 0; $k < count($bases); $k++) {
     $fullExpected[$k] = '';
 }
 foreach ($cases as $case) {
-    if (1 != $i -1) {
-      // continue;
+
+    if (12 != $i -1) {
+     //  continue;
     }
 
     $count = $i + 1;
@@ -282,13 +289,15 @@ foreach ($cases as $case) {
     $i++;
 }
 
-// echo "\n\nFULL: " . $full;
+// echo "\n\nFULL: " . print_r($full, true);
 
 
 $partThreeFailCount = 0;
 $i = 0;
 foreach ($bases as $base) {
-
+    if (empty($full[$i])) {
+        echo "\n Full[" . $i . '] is empty';
+    }
     $test = fullUrls($base, $full[$i]);
     if ($test !== $fullExpected[$i]) {
         $partThreeFailCount++;
