@@ -91,7 +91,13 @@ function fullUrls($base, $html) {
       or    <img src="something"> */
     $pattern = '@<(?:a|img)[\s]+[^>]*(?:href|src)[^>]+\>@i';
     preg_match_all($pattern, $html, $matches);
-    $tags = $matches[0];
+    if (isset($matches[0])) {
+        $tags = $matches[0];
+    } else {
+        /* No tags with URLs in source */
+        echo "\nNO TAGS FOUND";
+        return $html;
+    }
 
    //  echo print_r($tags, true);
    //  exit;
@@ -112,9 +118,16 @@ function fullUrls($base, $html) {
         }
 
         /* extract URL from tag */
-        $pattern2 = '@(?:href|src)[\s]*=[\s]*[\'\"]([^\'"]+)[\'\"][\s]*>@';
+        $pattern2 = '@(?:href|src)[\s]*=[\s]*[\"\']([^\'\"]+).*>@i';
+
         preg_match($pattern2, $fullTag, $matches);
-        $originalUrl = $matches[1];
+        if (isset($matches[1])) {
+            $originalUrl = $matches[1];
+        } else {
+            echo "\n NO URL MATCH INSIDE TAG";
+            continue;
+        }
+
         if ($debug) {
             echo "\nOriginalUrl: " . $originalUrl;
         }
@@ -223,7 +236,16 @@ $cases = array(
         'initial' => '<img style="border:none;" src="/section1/page1.jpg">/section1/page1.html#jumpto</img>',
         'expected' => '<img style="border:none;" src="' . $basePlaceholder . 'section1/page1.jpg">/section1/page1.html#jumpto</img>'
     ),
-
+    // Case 14
+    array(
+        'initial' => '<a style="color: Red;" href="/section1/page1.html#jumpto" class="large">/section1/page1.html#jumpto</a>',
+        'expected' => '<a style="color: Red;" href="' . $basePlaceholder . 'section1/page1.html#jumpto" class="large">/section1/page1.html#jumpto</a>'
+    ),
+    // Case 15
+    array(
+        'initial' => '<img style="border:none;" src="/section1/page1.jpg" class="large">/section1/page1.html#jumpto</img>',
+        'expected' => '<img style="border:none;" src="' . $basePlaceholder . 'section1/page1.jpg" class="large">/section1/page1.html#jumpto</img>'
+    ),
 
 );
 $i = 0;
