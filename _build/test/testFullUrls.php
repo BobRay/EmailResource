@@ -1,4 +1,6 @@
 <?php
+
+require_once '../../core/components/emailresource/model/emailresource/fullurls.class.php';
 /**
  * Created by PhpStorm.
  * User: BobRay
@@ -16,138 +18,6 @@
  **/
 
 $debug = false;
-
-function convert($base, $url, $protocol, $domain) {
-    global $debug;
-
-     if ($debug) { echo "\nReceived:" . $url; }
-
-     $base = rtrim($base, '/');
-     if (preg_match('@https?@', $url)) {
-         return $url;
-     }
-
-     if (preg_match('@^[\s]*//@', $url)) {
-         return $url;
-     }
-
-     if (preg_match('@^[\s]*#@', $url)) {
-         return $url;
-     }
-
-     /* $url has no protocol beyond this point */
-
-
-    $url = ltrim($url, '/');
-    $ourDomain = strpos($url, $domain) !== false;
-    $hasAnyDomain  = preg_match('@^[^\/]*\..+\/@', $url);
-    $www = 'www.';
-    $UrlHasWww = stripos($url, 'www.') !== false;
-    $baseHasWww = stripos($base, 'www.') !== false;
-
-    if (! $UrlHasWww && ! $baseHasWww) {
-
-    }
-
-    /* contains our domain name but no protocol*/
-     if ($ourDomain) {
-         $url =  $protocol . $url;
-     } elseif (!$hasAnyDomain) {
-
-     /* No domain - must be ours */
-
-         $url = $base . '/' . $url;
-     } else {
-         $url = 'http://' . $url;
-     }
-     /*if (strpos($url, $domain) === false) {
-
-       $url = $base . '/' . $url;
-
-        // return preg_replace('@(.*?href[\s]*\=[\s]*[\'"])([\/])*(.*)@', '\1' . $base . '/\3',$url);
-
-     }*/
-
-     return $url;
- }
-
-function fullUrls($base, $html) {
-    global $debug;
-
-    /* Extract domain name and protocol from $base */
-    $splitBase = explode('//', $base);
-    $protocol = $splitBase[0] . '//';
-    $domain = $splitBase[1];
-    $domain = rtrim($domain, '/ ');
-    if ($debug) {
-        echo "\nProtocol: " . $protocol;
-        echo "\nBase: " . $base;
-        echo "\nDomain: " . $domain;
-    }
-
-
-    /* get array of tags. Collects only the a or img part:
-            <a href="somethings">
-      or    <img src="something"> */
-    $pattern = '@<(?:a|img)[\s]+[^>]*(?:href|src)[^>]+\>@i';
-    preg_match_all($pattern, $html, $matches);
-    if (isset($matches[0])) {
-        $tags = $matches[0];
-    } else {
-        /* No tags with URLs in source */
-        echo "\nNO TAGS FOUND";
-        return $html;
-    }
-
-   //  echo print_r($tags, true);
-   //  exit;
-
-    if (empty($tags)) {
-        return $html;
-    }
-
-    // echo "\n\n" . print_r($tags, true) . "\n\n";
-
-    /* $fullTag is only the a part:
-            <a href="somethings">
-      or    <img src="something"> */
-    foreach($tags as $tag) {
-        $fullTag = $tag;
-        if ($debug) {
-            echo "\nFullTag: " . $fullTag;
-        }
-
-        /* extract URL from tag */
-        $pattern2 = '@(?:href|src)[\s]*=[\s]*[\"\']([^\'\"]+).*>@i';
-
-        preg_match($pattern2, $fullTag, $matches);
-        if (isset($matches[1])) {
-            $originalUrl = $matches[1];
-        } else {
-            echo "\n NO URL MATCH INSIDE TAG";
-            continue;
-        }
-
-        if ($debug) {
-            echo "\nOriginalUrl: " . $originalUrl;
-        }
-
-        $newUrl = convert($base, $originalUrl, $protocol, $domain);
-
-        if ($debug) {
-            echo "\nReturned: ", $newUrl;
-        }
-        if ($originalUrl !== $newUrl) {
-            $newTag = str_replace($originalUrl, $newUrl, $fullTag);
-            $html = str_replace($fullTag, $newTag, $html);
-        }
-
-
-
-    }
-     return $html;
-}
-
 
 $basePlaceholder = '~~~';
 
@@ -293,7 +163,7 @@ foreach ($cases as $case) {
             $expected = str_replace('://', '://www.', $expected);
         }
         $fullExpected[$j] .= $expected . $lorum;
-        $obtained = fullUrls($base, $initial);
+        $obtained = FullUrls::fullUrls($base, $initial);
         if ($debug) {
             echo "\nInitial: " . $initial;
             echo "\nExpected:" . $expected;
@@ -320,7 +190,7 @@ foreach ($bases as $base) {
     if (empty($full[$i])) {
         echo "\n Full[" . $i . '] is empty';
     }
-    $test = fullUrls($base, $full[$i]);
+    $test = FullUrls::fullUrls($base, $full[$i]);
     if ($test !== $fullExpected[$i]) {
         $partThreeFailCount++;
     }

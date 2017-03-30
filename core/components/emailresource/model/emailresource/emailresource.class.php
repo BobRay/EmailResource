@@ -192,34 +192,10 @@ class EmailResource
      * @return string - full URL
      */
     public function fullUrls($base) {
-        /* extract domain name from $base */
-        $splitBase = explode('//', $base);
-        $domain = $splitBase[1];
-        $domain = rtrim($domain,'/ ');
-
-        /* remove space around = sign */
-        //$html = preg_replace('@(href|src)\s*=\s*@', '\1=', $html);
-        $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $this->html);
-
-        /* fix google link weirdness */
-        $html = str_ireplace('google.com/undefined', 'google.com',$html);
-
-        /* add http to naked domain links so they'll be ignored later */
-        $html = str_ireplace('a href="' . $domain, 'a href="http://'. $domain, $html);
-
-        /* standardize orthography of domain name */
-        $html = str_ireplace($domain, $domain, $html);
-
-        /* Correct base URL, if necessary */
-        $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
-
-        /* handle root-relative URLs */
-        $html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
-
-        /* handle base-relative URLs */
-        $html = preg_replace('@\<([^>]*) (href|src)="(?!http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
-
-        return $html;
+        $core_path = MODX_CORE_PATH . 'components/emailresource/';
+        require $core_path . 'model/emailresource/fullurls.class.php';
+        $this->html = FullUrls::fullUrls($base, $this->html);
+        return;
     }
 
     /**
