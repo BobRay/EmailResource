@@ -15,10 +15,12 @@
  * @package emailResource
  **/
 
+$debug = false;
+
 function convert($base, $url, $protocol, $domain) {
+    global $debug;
 
-
-     echo "\nReceived:" . $url;
+     if ($debug) { echo "\nReceived:" . $url; }
 
      $base = rtrim($base, '/');
      if (preg_match('@https?@', $url)) {
@@ -70,17 +72,18 @@ function convert($base, $url, $protocol, $domain) {
  }
 
 function fullUrls($base, $html) {
-
+    global $debug;
 
     /* Extract domain name and protocol from $base */
     $splitBase = explode('//', $base);
     $protocol = $splitBase[0] . '//';
     $domain = $splitBase[1];
     $domain = rtrim($domain, '/ ');
-
-    echo "\nProtocol: " . $protocol;
-    echo "\nBase: " . $base;
-    echo "\nDomain: " . $domain;
+    if ($debug) {
+        echo "\nProtocol: " . $protocol;
+        echo "\nBase: " . $base;
+        echo "\nDomain: " . $domain;
+    }
 
 
     /* get array of tags. Collects only the a or img part:
@@ -104,17 +107,23 @@ function fullUrls($base, $html) {
       or    <img src="something"> */
     foreach($tags as $tag) {
         $fullTag = $tag;
-        echo "\nFullTag: " . $fullTag;
+        if ($debug) {
+            echo "\nFullTag: " . $fullTag;
+        }
 
         /* extract URL from tag */
         $pattern2 = '@(?:href|src)[\s]*=[\s]*[\'\"]([^\'"]+)[\'\"][\s]*>@';
         preg_match($pattern2, $fullTag, $matches);
         $originalUrl = $matches[1];
-        echo "\nOriginalUrl: " . $originalUrl;
+        if ($debug) {
+            echo "\nOriginalUrl: " . $originalUrl;
+        }
 
         $newUrl = convert($base, $originalUrl, $protocol, $domain);
 
-        echo "\nReturned: ", $newUrl;
+        if ($debug) {
+            echo "\nReturned: ", $newUrl;
+        }
         if ($originalUrl !== $newUrl) {
             $newTag = str_replace($originalUrl, $newUrl, $fullTag);
             $html = str_replace($fullTag, $newTag, $html);
@@ -124,37 +133,6 @@ function fullUrls($base, $html) {
 
     }
      return $html;
-    /* remove space around = sign */
-    $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $html);
-
-    /* Fix google link weirdness */
-    $html = str_ireplace('google.com/undefined', 'google.com', $html);
-
-    /* add base protocol to naked domain links so they'll be ignored later */
-    $html = str_ireplace('a href="' . $domain, 'a href="' . $protocol . '//' . $domain, $html);
-
-    /* Standardize orthography of domain name */
-    $html = str_ireplace($domain, $domain, $html);
-
-    /* Correct base URL, if necessary */
-    $server = preg_replace('@^([^\:]*)://([^/*]*)(/|$).*@', '\1://\2/', $base);
-
-    /* Protect external links with no protocol */
-
-    /* Handle root-relative URLs */
-    //$html = preg_replace('@\<([^>]*) (href|src)="/([^"]*)"@i', '<\1 \2="'.$server.'\3"', $html);
-    $html = preg_replace('@\<([^>]*) (href|src)="/([^#"]*)"@i', '<\1 \2="' . $server . '\3"', $html);
-
-    /* Handle base-relative URLs */
-    //$html = preg_replace('@\<([^>]*) (href|src)="(?!http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="'.$base.'\3"', $html);
-    $html = preg_replace('@\<([^>]*) (href|src)="(?!#|http|mailto|sip|tel|callto|sms|ftp|sftp|gtalk|skype)(([^\:"])*|([^"]*:[^/"].*))"@i', '<\1 \2="' . $base . '\3"', $html);
-
-    // preg_match('@([a-zA-Z])(\/\/)([a-zA-Z])@', $html, $matches);
-
-    /* Remove double slashes in path */
-    // $html = preg_replace('@([a-zA-Z])(\/\/)([a-zA-Z])@', '\1/\3', $html);
-
-    return $html;
 }
 
 
@@ -255,10 +233,16 @@ $fullExpecteds = array();
 $i = 0;
 $full = array();
 $fullExpected = array();
+
+for ($k = 0; $k < count($bases); $k++) {
+    $full[$k] = '';
+    $fullExpected[$k] = '';
+}
 foreach ($cases as $case) {
     if (1 != $i -1) {
       // continue;
     }
+
     $count = $i + 1;
     echo "\n\n[Case " . $count . "]";
 
@@ -268,7 +252,9 @@ foreach ($cases as $case) {
         $fullExpected[$j] .= $lorum;
 
 
-        echo "\n\n**************************************************************";
+        if ($debug) {
+            echo "\n\n**************************************************************";
+        }
         $initial = $case['initial'];
         $full[$j] .= $initial . $lorum;
         $expected = str_replace($basePlaceholder, $base, $case['expected']);
@@ -279,14 +265,18 @@ foreach ($cases as $case) {
         }
         $fullExpected[$j] .= $expected . $lorum;
         $obtained = fullUrls($base, $initial);
-        echo "\nInitial: " . $initial;
-        echo "\nExpected:" . $expected;
-        echo "\nObtained:" . $obtained;
+        if ($debug) {
+            echo "\nInitial: " . $initial;
+            echo "\nExpected:" . $expected;
+            echo "\nObtained:" . $obtained;
+        }
         $pass = ($expected === $obtained) ? ' -- pass' : ' -- fail';
         if ($pass === ' -- fail') {
             $partOneFailCount++;
         }
+
         echo $pass;
+
         $j++;
     }
     $i++;
