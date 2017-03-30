@@ -22,10 +22,10 @@ $debug = false;
 $basePlaceholder = '~~~';
 
 $bases = array(
-    'https://www.domain.com/',
-    'http://domain.com/',
-    'https://domain.com/',
-    'http://www.domain.com/',
+    'https://www.localdomain.com/',
+    'http://localdomain.com/',
+    'https://localdomain.com/',
+    'http://www.localdomain.com/',
 );
 
 
@@ -74,9 +74,9 @@ $cases = array(
 
     // Case 8
     array(
-        'initial' => '<a href="www.domain.com/page1.html">www.domain.com/page1.html</a>',
+        'initial' => '<a href="www.localdomain.com/page1.html">www.localdomain.com/page1.html</a>',
         'expected' => '<a href="' .
-            $basePlaceholder . 'page1.html">www.domain.com/page1.html</a>'
+            $basePlaceholder . 'page1.html">www.localdomain.com/page1.html</a>'
     ),
 
     // Case 9
