@@ -47,8 +47,6 @@ function convert($base, $url, $protocol, $domain) {
 
     }
 
-
-
     /* contains our domain name but no protocol*/
      if ($ourDomain) {
          $url =  $protocol . $url;
@@ -71,7 +69,7 @@ function convert($base, $url, $protocol, $domain) {
      return $url;
  }
 
-function fullUrls($base, $url) {
+function fullUrls($base, $html) {
 
 
     /* Extract domain name and protocol from $base */
@@ -85,33 +83,47 @@ function fullUrls($base, $url) {
     echo "\nDomain: " . $domain;
 
 
+    /* get array of tags. Collects only the a or img part:
+            <a href="somethings">
+      or    <img src="something"> */
     $pattern = '@<(?:a|img)[\s]+(?:href|src)[^>]+\>@i';
-    preg_match($pattern, $url, $matches);
+    preg_match_all($pattern, $html, $matches);
+    $tags = $matches[0];
 
-    // echo "\n\n" . print_r($matches, true) . "\n\n";
+   //  echo print_r($tags, true);
+   //  exit;
+
+    if (empty($tags)) {
+        return $html;
+    }
+
+    // echo "\n\n" . print_r($tags, true) . "\n\n";
 
     /* $fullTag is only the a part:
             <a href="somethings">
       or    <img src="something"> */
+    foreach($tags as $tag) {
+        $fullTag = $tag;
+        echo "\nFullTag: " . $fullTag;
 
-    $fullTag = $matches[0];
-    echo "\nFullTag: " . $fullTag;
+        /* extract URL from tag */
+        $pattern2 = '@(?:href|src)[\s]*=[\s]*[\'\"]([^\'"]+)[\'\"][\s]*>@';
+        preg_match($pattern2, $fullTag, $matches);
+        $originalUrl = $matches[1];
+        echo "\nOriginalUrl: " . $originalUrl;
 
-    /* extract URL from tag */
-    $pattern2 = '@(?:href|src)[\s]*=[\s]*[\'\"]([^\'"]+)[\'\"][\s]*>@';
-    preg_match($pattern2, $fullTag, $matches);
-    $originalUrl = $matches[1];
-    echo "\nOriginalUrl: " . $originalUrl;
+        $newUrl = convert($base, $originalUrl, $protocol, $domain);
 
-    $newUrl = convert($base, $originalUrl, $protocol, $domain);
+        echo "\nReturned: ", $newUrl;
+        if ($originalUrl !== $newUrl) {
+            $newTag = str_replace($originalUrl, $newUrl, $fullTag);
+            $html = str_replace($fullTag, $newTag, $html);
+        }
 
-    echo "\nReturned: " , $newUrl;
-    if ($originalUrl !== $newUrl) {
-        $fullTag = str_replace($originalUrl, $newUrl, $fullTag);
+
+
     }
-
-
-     return $fullTag;
+     return $html;
     /* remove space around = sign */
     $html = preg_replace('@(?<=href|src)\s*=\s*@', '=', $html);
 
@@ -160,13 +172,13 @@ $cases = array(
     // Case 1
     array(
         'initial' => '<a href="page1.html">page1.html</a>',
-        'expected' => '<a href="' . $basePlaceholder . 'page1.html">'
+        'expected' => '<a href="' . $basePlaceholder . 'page1.html">page1.html</a>'
     ),
 
     // Case 2
     array(
         'initial' => '<a href="section1/page1.html">section1/page1.html</a>',
-        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html">'
+        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html">section1/page1.html</a>'
     ),
 
     // Case 3
@@ -178,50 +190,50 @@ $cases = array(
     // Case 4
     array(
         'initial' => '<a href="/section1/page1.html">/section1/page1.html</a>',
-        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html">',
+        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html">/section1/page1.html</a>',
     ),
 
     // Case 5
     array(
         'initial' => '<a href="/section1/page1.html#jumpto">/section1/page1.html#jumpto</a>',
-        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html#jumpto">'
+        'expected' => '<a href="' . $basePlaceholder . 'section1/page1.html#jumpto">/section1/page1.html#jumpto</a>'
     ),
 
     // Case 6
     array(
         'initial' => '<a href="http://www.external.com/page1.html">http://www.externaldomain.com/page1.html</a>',
-        'expected' => '<a href="http://www.external.com/page1.html">',
+        'expected' => '<a href="http://www.external.com/page1.html">http://www.externaldomain.com/page1.html</a>',
     ),
 
     // Case 7
     array(
         'initial' => '<a href="www.external.com/page1.html">www.externaldomain.com/page1.html</a>',
-        'expected' => '<a href="' . 'http://www.external.com/page1.html">',
+        'expected' => '<a href="' . 'http://www.external.com/page1.html">www.externaldomain.com/page1.html</a>',
     ),
 
     // Case 8
     array(
         'initial' => '<a href="www.domain.com/page1.html">www.domain.com/page1.html</a>',
         'expected' => '<a href="' .
-            $basePlaceholder . 'page1.html">'
+            $basePlaceholder . 'page1.html">www.domain.com/page1.html</a>'
     ),
 
     // Case 9
     array(
         'initial' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>',
-        'expected' => '<a href="//www.external.com/page1.html">',
+        'expected' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>',
     ),
 
     // Case 10
     array (
         'initial' => '<a href="#jumpto">#jumpto</a>',
-        'expected' => '<a href="#jumpto">'
+        'expected' => '<a href="#jumpto">#jumpto</a>'
     ),
 
     // Case 11
     array (
         'initial' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>',
-        'expected' => '<a href="//www.external.com/page1.html">'
+        'expected' => '<a href="//www.external.com/page1.html">//www.externaldomain.com/page1.html</a>'
     ),
 
 
@@ -229,46 +241,79 @@ $cases = array(
 $i = 0;
 
 $lorum = "\n <p> Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit  </p>";
-$full = $lorum;
-$fullExpected = $lorum;
+$full = '';
+$fullExpected = '';
 
+$partOneFailCount = 0;
+$partTwoFailCount = 0;
+$partThreeFailCount = 0;
+
+$fullTexts = array();
+$fullExpecteds = array();
+
+
+$i = 0;
+$full = array();
+$fullExpected = array();
 foreach ($cases as $case) {
-    $i++;
-    if (8 != $i) {
-       // continue;
+    if (1 != $i -1) {
+      // continue;
     }
-    echo "\n\n[Case " . $i . "]";
+    $count = $i + 1;
+    echo "\n\n[Case " . $count . "]";
 
+    $j = 0;
     foreach ($bases as $base) {
+        $full[$j] .= $lorum;
+        $fullExpected[$j] .= $lorum;
+
+
         echo "\n\n**************************************************************";
         $initial = $case['initial'];
-        $full .= $initial . $lorum;
+        $full[$j] .= $initial . $lorum;
         $expected = str_replace($basePlaceholder, $base, $case['expected']);
 
         /* correct Case 8 expected */
-        if ((strpos($initial, 'www.') !== false) && (strpos($expected, 'www.') === false)) {
+        if ((strpos($initial, '"www.') !== false) && (strpos($expected, '//www.') === false)) {
             $expected = str_replace('://', '://www.', $expected);
         }
-        $fullExpected .= $expected . $lorum;
+        $fullExpected[$j] .= $expected . $lorum;
         $obtained = fullUrls($base, $initial);
         echo "\nInitial: " . $initial;
         echo "\nExpected:" . $expected;
         echo "\nObtained:" . $obtained;
-        echo ($expected === $obtained)? ' -- pass' : ' -- fail';
+        $pass = ($expected === $obtained) ? ' -- pass' : ' -- fail';
+        if ($pass === ' -- fail') {
+            $partOneFailCount++;
+        }
+        echo $pass;
+        $j++;
     }
+    $i++;
 }
 
-/* preg_mactch_all */
+// echo "\n\nFULL: " . $full;
 
-$pattern = '@<(?:a|img)[\s]+(?:href|src)[^>]+\>@i';
-preg_match_all($pattern, $full, $matches);
 
-echo "\n\nFULL:\n" . print_r($matches, true);
+$partThreeFailCount = 0;
+$i = 0;
+foreach ($bases as $base) {
 
-$fullTags = $matches[0];
+    $test = fullUrls($base, $full[$i]);
+    if ($test !== $fullExpected[$i]) {
+        $partThreeFailCount++;
+    }
+    $i++;
+}
+echo "\n ****************************************** \n";
 
-echo "\n\nFULL:\n" . print_r($fullTags, true);
-// echo $full;
+echo "\nPart One Fail Count: " . $partOneFailCount;
+// echo "\n\nEXPECTED: " . $fullExpected;
+
+echo "\nPart Two Fail Count: " . $partTwoFailCount;
+/* preg_match_all */
+echo "\nPart Three Fail Count: " . $partThreeFailCount;
+
 
 
 exit;
