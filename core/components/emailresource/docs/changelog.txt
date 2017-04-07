@@ -1,5 +1,9 @@
 Changelog for EmailResource
 
+EmailResource 1.2.1-pl
+----------------------
+Fix reliability issues with fullUrls
+
 EmailResource 1.2.0-pl
 ----------------------
 Fixes E_NOTICE bug with TVs
