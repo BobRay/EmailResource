@@ -61,7 +61,7 @@ class FullUrls {
             $tags = $matches[0];
         } else {
             /* No tags with URLs in source */
-            echo "\nNO TAGS FOUND";
+           // echo "\nNO TAGS FOUND";
             return $html;
         }
 
@@ -78,6 +78,11 @@ class FullUrls {
                 <a href="somethings">
           or    <img src="something"> */
         foreach ($tags as $tag) {
+
+            if (preg_match('/mailto:|tel:/', $tag) === 1) {
+                  return $html;
+            }
+
             $fullTag = $tag;
             if ($debug) {
                 echo "\nFullTag: " . $fullTag;
@@ -90,7 +95,7 @@ class FullUrls {
             if (isset($matches[1])) {
                 $originalUrl = $matches[1];
             } else {
-                echo "\n NO URL MATCH INSIDE TAG";
+                // echo "\n NO URL MATCH INSIDE TAG";
                 continue;
             }
 
