@@ -80,7 +80,7 @@ class FullUrls {
         foreach ($tags as $tag) {
 
             if (preg_match('/mailto:|tel:/', $tag) === 1) {
-                  return $html;
+                 continue;
             }
 
             $fullTag = $tag;
