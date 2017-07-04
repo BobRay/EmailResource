@@ -2,7 +2,7 @@
 /**
  * EmailResource Build Script
  *
- * Copyright 2011 Bob Ray <http:bobsguides.com>
+ * Copyright 2011-2017 Bob Ray <https://bobsguides.com>
  *
  * EmailResource is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,7 +31,7 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','EmailResource');
 define('PKG_NAME_LOWER','emailresource');
-define('PKG_VERSION','1.2.1');
+define('PKG_VERSION','1.2.2');
 define('PKG_RELEASE','pl');
 define('PKG_CATEGORY','EmailResource');
 
@@ -47,8 +47,8 @@ $hasResources = false;
 $hasValidator = false; /* Run a validator before installing anything */
 $hasResolver = true; /* Run a resolver after installing everything */
 $hasSetupOptions = false; /* HTML/PHP script to interact with user */
-$hasMenu = false; /* Add items to the MODx Top Menu */
-$hasSettings = false; /* Add new MODx System Settings */
+$hasMenu = false; /* Add items to the MODX Top Menu */
+$hasSettings = false; /* Add new MODX System Settings */
 
 /* Note: TVs are connected to their templates in the script resolver
  * (see _build/data/resolvers/install.script.php)
@@ -93,7 +93,7 @@ $sources= array (
 );
 unset($root);
 
-/* Instantiate MODx -- if this require fails, check your
+/* Instantiate MODX -- if this require fails, check your
  * _build/build.config.php file
  */
 require_once $sources['build'].'build.config.php';

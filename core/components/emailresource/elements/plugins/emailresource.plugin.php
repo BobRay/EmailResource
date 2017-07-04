@@ -2,9 +2,9 @@
 /**
  * EmailResource plugin
  *
- * Copyright 2011-2013 Bob Ray <http://bobsguides.com>
+ * Copyright 2011-2017 Bob Ray <https://bobsguides.com>
  *
- * @author Bob Ray <http:bobsguides.com>
+ * @author Bob Ray <https://bobsguides.com>
  * Created 8/20/11
  *
  * EmailResource is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
  */
 
 /**
- * MODx EmailResource plugin
+ * MODX EmailResource plugin
  *
  * Description: Creates and Sends an email version of a resource
  * Events: OnWebPagePrerender

@@ -3,9 +3,9 @@
 /**
  * EmailResource
  *
- * Copyright 2011 Bob Ray
+ * Copyright 2011-2017 Bob Ray
  *
- * @author Bob Ray <http://bobsguides.com>
+ * @author Bob Ray <https://bobsguides.com>
  * 
  * 
  *
@@ -25,7 +25,7 @@
  * @package emailresource
  */
 /**
- * MODx EmailResource Class
+ * MODX EmailResource Class
  *
  * @version Version 1.1.0-beta1
  *
@@ -38,7 +38,7 @@
  */
 
 /**
- * MODx EmailResource class
+ * MODX EmailResource class
  *
  * Description: Creates and Sends an email version of a resource
  *

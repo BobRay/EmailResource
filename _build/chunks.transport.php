@@ -2,8 +2,8 @@
 /**
  * Utility snippet for EmailResource development
  *
- * Copyright 2011 Bob Ray <http:bobsguides.com>
- * @author Bob Ray <http:bobsguides.com>
+ * Copyright 2011-2017 Bob Ray <https://bobsguides.com>
+ * @author Bob Ray <https://bobsguides.com>
  * 8/20/11
  *
  * EmailResource is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
 
 /**
  * Utility snippet for development - just installs the
- * Tpl chunks into MODx. Not used by the package.
+ * Tpl chunks into MODX. Not used by the package.
  * It can also install the snippets if you uncomment
  * the snippet section.
  *
@@ -49,7 +49,7 @@ $sources= array (
 );
 unset($root);
 
-/* instantiate MODx */
+/* instantiate MODX */
 require_once $sources['build'].'build.config.php';
 require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
 $modx= new modX();

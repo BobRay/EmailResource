@@ -1,10 +1,14 @@
-EmailResource Extra for MODx Revolution
+EmailResource Extra for MODX Revolution
 =======================================
 
 
-**Author:** Bob Ray <http://bobsguides.com> [Bob's Guides](http://bobsguides.com)
+**Author:** Bob Ray [Bob's Guides](https://bobsguides.com)
 
-Documentation is available at [Bob's Guides](http://bobsguides.com/emailresource-plugin-tutorial.html)
+**Documentation:** [EmailResource Docs](https://bobsguides.com/emailresource-plugin-tutorial.html)
+
+**Bugs and requests:** [EmailResource Issues](https://github.com/BobRay/EmailResource/issues)
+
+**Questions about using EmailResource** [MODX Forums](https://forums.modx.com)
 
 EmailResource is a plugin that sends an email version of any resource. The plugin is connected to the OnWebPagePrerender System Event and acts when the resource if previewed in the MODX Manager.
 

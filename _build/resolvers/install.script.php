@@ -3,8 +3,8 @@
 /**
  * EmailResource resolver script - runs on install.
  *
- * Copyright 2011 Bob Ray <http:bobsguides.com>
- * @author Bob Ray <http:bobsguides.com>
+ * Copyright 2011-2017 Bob Ray <https://bobsguides.com>
+ * @author Bob Ray <https://bobsguides.com>
  * 8/20/11
  *
  * EmailResource is free software; you can redistribute it and/or modify it
