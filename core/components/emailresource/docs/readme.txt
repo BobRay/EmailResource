@@ -5,6 +5,7 @@ Plugins: EmailResource
 This extra would not exist without the generous support provided by WorkDay Media <http://www.workdaymedia.com.au>
 
 Author: Bob Ray <https://bobsguides.com>
+Copyright 2011-2017 Bob Ray <https://bobsguides.com>
 
 Official Documentation: http://yourdomain.com/emailresource-plugin-tutorial.html
 Bugs and Feature Requests: https://github.com/BobRay/emailresource
