@@ -1,6 +1,10 @@
 Changelog for EmailResource
 
 
+EmailResource 1.2.3-pl
+----------------------
+Fix bug with email: and tel: links
+
 EmailResource 1.2.2-pl
 ----------------------
 Ignore email: and tel: hrefs when converting to full-urls
