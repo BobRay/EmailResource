@@ -3,7 +3,7 @@
 /**
  * EmailResource
  *
- * Copyright 2011-2017 Bob Ray
+ * Copyright 2011-2019 Bob Ray
  *
  * @author Bob Ray <https://bobsguides.com>
  * 
@@ -27,7 +27,6 @@
 /**
  * MODX EmailResource Class
  *
- * @version Version 1.1.0-beta1
  *
  * @package  emailresource
  *

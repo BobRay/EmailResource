@@ -2,7 +2,7 @@
 /**
  * EmailResource plugin
  *
- * Copyright 2011-2017 Bob Ray <https://bobsguides.com>
+ * Copyright 2011-2019 Bob Ray <https://bobsguides.com>
  *
  * @author Bob Ray <https://bobsguides.com>
  * Created 8/20/11
