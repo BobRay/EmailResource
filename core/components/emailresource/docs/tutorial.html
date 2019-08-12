@@ -1,6 +1,17 @@
 <h3>Overview</h3>
 
 <p>The EmailResource plugin for MODX Revolution will format and email any resource on your site. It will convert your CSS code to inline styles in the email so that the email will have HTML formatting. The CSS code can be taken from multiple CSS files, resources, or chunks. As of EmailResource version 1.1.2, you can send the email to all members of selected User Groups and you can use tags to send the email to selected members of each User Group.</p>
+
+<br>
+
+<div class="box">
+    <p>An alternative to EmailResource is the <a href="[[~268]]" target="_blank" rel="noreferrer noopener nofollow">Notify extra</a>. Rather than sending a whole resource to users, Notify just sends an email with a link to the resource, which takes a lot of pressure off your server and the internet.</p>
+
+    <p>Notify works with the <a href="[[~227]]" target="_blank" rel="noreferrer noopener nofollow">Subscribe extra</a> to give users more opportunity to manage their preferences about which emails to receive. Notify also (optionally) shortens URLs, and can use Mailgun, which gives you faster sending and better deliverability.</p>
+</div>
+
+
+<h3>How EmailResource Works</h3>
     
 <p>The package works in a kind of an odd way. It emails the resource when you preview it from the MODX manager. To make that happen, you need to set values for some of the template variables attached to the resource (listed below). You may also want to set the properties of the plugin to the values you want in your email header.</p>
 
