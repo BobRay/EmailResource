@@ -2,6 +2,8 @@
 
 <p>The EmailResource plugin for MODX Revolution will format and email any resource on your site. It will convert your CSS code to inline styles in the email so that the email will have HTML formatting. The CSS code can be taken from multiple CSS files, resources, or chunks. As of EmailResource version 1.1.2, you can send the email to all members of selected User Groups and you can use tags to send the email to selected members of each User Group.</p>
 
+<h4>Fully Updated for MODX 3</h4>
+
 <br>
 
 <div class="box">
@@ -10,20 +12,31 @@
     <p>Notify works with the <a href="[[~227]]" target="_blank" rel="noreferrer noopener nofollow">Subscribe extra</a> to give users more opportunity to manage their preferences about which emails to receive. Notify also (optionally) shortens URLs, and can use Mailgun, which gives you faster sending and better deliverability.</p>
 </div>
 
+<h3>Limitations</h3>
+
+<p>Not all web pages will look good when emailed. For example, .svg images generally won't be displayed, and interactive JavaScript usually won't work. There's a good discussion of what will and won't work <a href="https://mailchimp.com/help/limitations-of-html-email/" target="_blank" rel="noopener nofollow noreferrer">here</a>.</p>
+
+<p>Pages that use the MODX base template in MODX 2 will look terrible when emailed, as do those that use the Bob's Guides default template. It may take some trial and error to develop templates and pages that look good when emailed. In both cases, copying the HTML from "view original" in Gmail, pasting it into a file, and viewing the file produces a view exactly like the original page. So the problem is definitely in the mail client.</p>
+
+<p>Keep in mind that each mail client has its own quirks and limitations, and that the result will also depend on the size of the user's screen.</p>
+
+<p>The limitations of various mail clients is another good reason to use Notify, which sends a link to the page on your website, instead of an email version of the page. When the user visits the link, the page will look just as it always does.</p>
 
 <h3>How EmailResource Works</h3>
     
-<p>The package works in a kind of an odd way. It emails the resource when you preview it from the MODX manager. To make that happen, you need to set values for some of the template variables attached to the resource (listed below). You may also want to set the properties of the plugin to the values you want in your email header.</p>
+<p>The package works in an odd way. It emails the resource when you preview it from the MODX manager. To make that happen, you need to set values for some of the template variables attached to the resource (listed below). You may also want to set the properties of the plugin to the values you want in your email header.</p>
 
 <p>This extra would not exist without the generous support provided by <a href="http://www.workdaymedia.com.au">WorkDay Media</a>.</p>
 
 <h3>Installing EmailResource for MODX Revolution</h3>
 
-<p>Go to Extras | Installer on the MODX Top menu to open Package Manager. Click on the "Download Extras" button. That will take you to the Revolution Repository. Put EmailResource in the search box and press Enter. Click on the "Download" button, and when the download has finished," click on the "Return to Package Manager" button. That should bring you back to your Package Management grid. Click on the "Install" button next to EmailResource in the grid. The EmailResource plugin should now be installed.</p>
+<p>Go to Extras -> Installer on the MODX Top menu to open Package Manager. Click on the "Download Extras" button. That will take you to the Revolution Repository. Put EmailResource in the search box and press Enter. Click on the "Download" button, and when the download has finished," click on the "Return to Package Manager" button. That should bring you back to your Package Management grid. Click on the "Install" button next to EmailResource in the grid. The EmailResource plugin should now be installed.</p>
+
+<p>If a page you want to email uses a different template than the site's default template, you'll need to edit that template. On the Template Variables tab, check all the EmailResource TVs and save the template. That will connect all the TVs, so they'll show up when you edit the resource.</p>
         
 <h3>Usage</h3>
         
-<p>The template variables used to control EmailResource will appear on the EmailResource section of the Template Variables tab when you edit a resource. If you don't see them, it means that you haven't attached the EmailResource TVs to the template used by the resource.        
+<p>The template variables used to control EmailResource will appear on the EmailResource section of the Template Variables tab when you edit a resource. If you don't see them, it means that you haven't attached the EmailResource TVs to the template used by the resource (see the paragraph above).
 
 <p>If the &quot;Preview Email&quot; TV is set to &quot;Yes&quot;, you will see the email that will be sent instead of the regular resource when you preview it.</p>
 
@@ -33,9 +46,7 @@
 
 <p>If the &quot;Tags&quot; TV contains a comma-separated list of tags, the resource will be only be emailed to Users in the User Group or Groups specified in the &quot;Groups&quot; TV who have any of the listed tags in the 'comment' field of their User Profile.</p>
         
-        
-<p>The TV values related to sending email are not set by default, because if they were, every time you previewed a resource, you'd be getting a copy of it in your email. You could also accidentally send multiple copies of the same email to Users. To prevent this, the &quot;Send Test Email&quot; and &quot;Bulk Email on Preview&quot; TVs are turned off (set to &quot;No&quot;) for a resource as soon as it is emailed, so you have to turn them on and save the resource each time you want to actually send the email. Don't forget to save the resource before viewing it if you want to email.</p>
-
+<p>Some of the TV values related to sending email are not set by default, because if they were, every time you previewed a resource, you'd be getting a copy of it in your email. You could also accidentally send multiple copies of the same email to Users. To prevent this, the &quot;Send Test Email&quot; and &quot;Bulk Email on Preview&quot; TVs are turned off (set to &quot;No&quot;) for a resource as soon as it is emailed, so you have to turn them on and save the resource each time you want to actually send the email. Don't forget to save the resource before viewing it if you want to email.</p>
 
 <p>To review, the plugin is controlled by a set of Template Variables that will appear on the Template Variable tab when editing any resource using a template to which the TVs are attached. Just edit the resource, set the TVs, save the resource, and preview it. All generic TVs to be used across various pages are set to @INHERIT, so if you set them in a parent container, all children will inherit the parent's values for the TVs.</p>
         
@@ -73,9 +84,9 @@
 <h3>Unsubscribe Link</h3>
 <p><b>Important: </b> In order to use this feature, you must have <a href="https://bobsguides.com/subscribe-tutorial.html">Subscribe</a> Version 1.2.0 or later installed.</p>
 
-<p>If Subscribe is installed, EmailResource will include an unsubscribe link at the bottom of every email. This is required for all bulk email by the USA CAN-spam act, so it is *very* strongly recommended. If Subscribe Version 1.2.0 or later is installed, this will be done automatically. The link is injected just above the closing <fixedpre>body</fixedpre> tag, or appended to the end of the message if there is no <fixedpre>body</fixedpre> tag.</p>
+<p>If Subscribe is installed, EmailResource will include an unsubscribe link at the bottom of every email when you send bulk email. This is required for all bulk email by the USA CAN-spam act, so it is *very* strongly recommended. If Subscribe Version 1.2.0 or later is installed, this will be done automatically. The link is injected just above the closing <fixedpre>body</fixedpre> tag, or appended to the end of the message if there is no <fixedpre>body</fixedpre> tag.</p>
 
-<p>The unsubscribe message comes from the Tpl chunk named in the <fixedpre>unsubscribe_tpl</fixedpre> property. The default chunk is called <fixedpre>unsubscribeTpl</fixedpre>, but if you need to modify it, you should duplicate it (call it <fixedpre>myunsubscribeTpl</fixedpre> and set that name in the property so it won't be overwritten if you upgrade or reinstall EmailResource. Be sure to have the <fixedpre>[[+unsubscribeUrl]]></fixedpre> tag in your chunk inside an href tag. EmailResource will replace the tag with a secure URL that is different for each user.</p>
+<p>The unsubscribe message comes from the Tpl chunk named in the <fixedpre>unsubscribe_tpl</fixedpre> property. The default chunk is called <fixedpre>unsubscribeTpl</fixedpre>, but if you need to modify it, you should duplicate it (call it <fixedpre>myunsubscribeTpl</fixedpre> and set that name in the property, so it won't be overwritten if you upgrade or reinstall EmailResource. Be sure to have the <fixedpre>[[+unsubscribeUrl]]></fixedpre> tag in your chunk inside an href tag. EmailResource will replace the tag with a secure URL that is different for each user.</p>
 
 <h3>CSS files</h3>
 <p>In order for EmailResources to find your CSS files, they either have to be placed in chunks or resources, or all exist in the same directory (defined in the CssBasePath TV). If your CSS files specify background images, be sure that the url specified in the CSS file contains a full, absolute URL to each image.</p>
@@ -229,7 +240,7 @@
 <h3>A Final Note</h3>
         
 <p>
-    You might not want to send a complete resource to Users. You might want, for example, want to send a short message, a note about an updated page, or a link to a new page or section. Remember that EmailResource can send *any* resource to your Users. You can easily create a new resource with a minimal or empty template, write a short note in the Resource Content field, and send it off to the Users. That note can be as short or ad long as you want and can contain links. Be sure to attach all the EmailResource TVs to any template used and to update the <fixedpre>template_list</fixedpre> property of the EmailResource plugin (if you're using it). As always, remember to save the resource before viewing it.   
+    You might not want to send a complete resource to Users. You might want, for example, want to send a short message, a note about an updated page, or a link to a new page or section. Remember that EmailResource can send *any* resource to your Users. You can easily create a new resource with a minimal template, write a short note in the Resource Content field, and send it off to the Users. That note can be as short or as long as you want and can contain links. Be sure to attach all the EmailResource TVs to any template used and to update the <fixedpre>template_list</fixedpre> property of the EmailResource plugin (if you're using it). As always, remember to save the resource before viewing it.
 </p>
         
 <p>&nbsp</p>
