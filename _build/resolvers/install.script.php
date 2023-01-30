@@ -3,7 +3,7 @@
 /**
  * EmailResource resolver script - runs on install.
  *
- * Copyright 2011-2019 Bob Ray <https://bobsguides.com>
+ * Copyright 2011-2023 Bob Ray <https://bobsguides.com>
  * @author Bob Ray <https://bobsguides.com>
  * 8/20/11
  *
@@ -34,10 +34,16 @@
  * use $object->xpdo
  */
 
-/* @var $modx modX
+/** @var $modx modX
    @var $object modX */
 
-$modx =& $object->xpdo;
+/** @var modTransportPackage $transport */
+
+if ($transport->xpdo) {
+    $modx =& $transport->xpdo;
+} else {
+    $modx =& $object->xpdo;
+}
 
 /* Connecting plugins to the appropriate system events and
  * connecting TVs to their templates is done here.
@@ -57,6 +63,10 @@ $hasExistingSettings = false;
 /* set to true to connect property sets to elements */
 $connectPropertySets = false;
 
+$isMODX3 = $modx->getVersionData()['version'] >= 3;
+$classPrefix = $isMODX3
+    ? 'MODX\Revolution\\'
+    : '';
 
 $success = true;
 
@@ -64,12 +74,13 @@ $modx->log(xPDO::LOG_LEVEL_INFO, 'Running PHP Resolver.');
 
 /* @var $options array */
 switch ($options[xPDOTransport::PACKAGE_ACTION]) {
-    /* This code will execute during an install */
+    /* This code will execute during a fresh install */
     case xPDOTransport::ACTION_INSTALL:
         /* Assign plugins to System events */
         if ($hasPlugins) {
             foreach ($plugins as $k => $plugin) {
-                $pluginObj = $modx->getObject('modPlugin', array('name' => $plugin));
+                $pluginObj = $modx->getObject($classPrefix .
+                    'modPlugin', array('name' => $plugin));
                 if (!$pluginObj) {
                     $modx->log(xPDO::LOG_LEVEL_INFO, 'cannot get object: ' . $plugin);
                 }
@@ -82,7 +93,8 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
                     foreach ($pluginEvents as $key => $pluginEvent) {
                         /* @var $pe modPluginEvent */
                         /* @var $pluginObj modPlugin */
-                        $pe = $modx->newObject('modPluginEvent');
+                        $pe = $modx->newObject($classPrefix .
+                            'modPluginEvent');
                         $pe->set('pluginid', $pluginObj->get('id'));
                         $pe->set('event', $pluginEvent);
                         $pe->save();
@@ -95,10 +107,11 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
             }
         }
 
-        /* Connect TVs to to the default template */
+        /* Connect TVs to the default template */
         /* @var $categoryObj modCategory */
         if ($hasTemplateVariables) {
-            $categoryObj = $modx->getObject('modCategory', array('category' => $category));
+            $categoryObj = $modx->getObject($classPrefix .
+                'modCategory', array('category' => $category));
             if (!$categoryObj) {
                 $modx->log(xPDO::LOG_LEVEL_INFO, 'Could not retrieve category object: ' . $category);
                 $categoryId = 0;
@@ -109,28 +122,31 @@ switch ($options[xPDOTransport::PACKAGE_ACTION]) {
             $modx->log(xPDO::LOG_LEVEL_INFO, 'Attempting to attach TVs to Templates');
             $ok = true;
             $defaultTemplateId = $modx->getOption('default_template', null);
-            $template = $modx->getObject('modTemplate', $defaultTemplateId);
+            $template = $modx->getObject($classPrefix .
+                'modTemplate', $defaultTemplateId);
 
             if (!empty($template)) {
-                $tvs = $modx->getCollection('modTemplateVar', array('category' => $categoryId));
+                $tvs = $modx->getCollection($classPrefix .
+                    'modTemplateVar', array('category' => $categoryId));
                 //$template->addMany($tvs);
                 //$template->save();
                 /* @var $tvt modTemplateVarTemplate */
                 /* @var $tv modTemplateVar */
 
                 foreach($tvs as $tv) {
-                    $tvt = $modx->newObject('modTemplateVarTemplate');
+                    $tvt = $modx->newObject($classPrefix .
+                        'modTemplateVarTemplate');
                     $tvt->set('tmplvarid',$tv->get('id'));
                     $tvt->set('templateid',$defaultTemplateId);
                     $tvt->save();
                 }
 
                 if (!empty($tvs)) {
-                    $langFile = MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
+                    $langFile = MODX_CORE_PATH . 'components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
                     if (file_exists($langFile)) {
-                        include MODX_BASE_PATH . 'core/components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
+                        include MODX_CORE_PATH . 'components/emailresource/lexicon/' . $modx->getOption('manager_language') . '/tvs.inc.php';
                     } else {
-                        include MODX_BASE_PATH . 'core/components/emailresource/lexicon/en/tvs.inc.php';
+                        include MODX_CORE_PATH . 'components/emailresource/lexicon/en/tvs.inc.php';
                     }
                     unset($langFile);
                     // foreach ($templates as $template) {

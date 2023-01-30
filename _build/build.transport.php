@@ -2,7 +2,7 @@
 /**
  * EmailResource Build Script
  *
- * Copyright 2011-2019 Bob Ray <https://bobsguides.com>
+ * Copyright 2011-2023 Bob Ray <https://bobsguides.com>
  *
  * EmailResource is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -31,7 +31,7 @@
 /* Set package info be sure to set all of these */
 define('PKG_NAME','EmailResource');
 define('PKG_NAME_LOWER','emailresource');
-define('PKG_VERSION','1.2.3');
+define('PKG_VERSION','1.3.3');
 define('PKG_RELEASE','pl');
 define('PKG_CATEGORY','EmailResource');
 

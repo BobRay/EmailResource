@@ -3,7 +3,7 @@
 /**
  * EmailResource
  *
- * Copyright 2011-2019 Bob Ray
+ * Copyright 2011-2023 Bob Ray
  *
  * @author Bob Ray <https://bobsguides.com>
  * 
@@ -81,10 +81,13 @@ class EmailResource
     protected $unSubTpl;
     protected $userTagsMethod;
     protected $userTagsExtendedField = '';
+    protected string $classPrefix = '';
+    /** @var modPhpMailer $mail */
+    protected $mail = null;
 
 
     /**
-     * EmailResource class contstructor
+     * EmailResource class constructor
      *
      * @param $modx modX
      * @param $props array
@@ -94,7 +97,8 @@ class EmailResource
         $this->modx =& $modx;
         $this->props =& $props;
 
-        /* er paths; Set the er. System Settings (these are only for development) */
+        /* Set the er paths from System Settings
+           (Settings will only exist in dev. environment) */
         $this->corePath = $this->modx->getOption('er.core_path', null, MODX_CORE_PATH . 'components/emailresource/');
         $this->assetsPath = $this->modx->getOption('er.assets_path', null, MODX_ASSETS_PATH . 'components/emailresource/');
         $this->assetsUrl = $this->modx->getOption('er.assets_url', null, MODX_ASSETS_URL . 'components/emailresource/');
@@ -105,6 +109,22 @@ class EmailResource
      * Initialize properties and Tpls for class
      */
     public function init() {
+        $isMODX3 = $this->modx->getVersionData()['version'] >= 3;
+
+        $this->classPrefix = $isMODX3
+            ? 'MODX\Revolution\\'
+            : '';
+
+        if ($isMODX3) {
+            if (!$this->modx->services->has('mail')) {
+                $this->modx->services->add('mail', new MODX\Revolution\Mail\modPhpMailer($this->modx));
+            }
+            $this->mail = $this->modx->services->get('mail');
+        } else {
+            $this->mail = $this->modx->getService('mail', 'mail.modPhpMailer');
+        }
+
+
         $useCommentField = $this->modx->getOption('sbs_use_comment_field', null, true);
         if (! $useCommentField) {
             $this->userTagsMethod = 'extended';
@@ -114,10 +134,11 @@ class EmailResource
         }
         $this->userTagsMethod =
         $this->sortBy = $this->modx->getOption('sortBy',$this->props,'username');
-        $this->sortByAlias = $this->modx->getOption('sortByAlias',$this->props,'modUser');
-        $this->userClass = $this->modx->getOption('userClass',$this->props,'modUser');
+        $this->sortByAlias = $this->modx->getOption('sortByAlias',$this->props,$this->classPrefix . 'modUser');
+        $this->userClass = $this->modx->getOption('userClass',$this->props,
+            $this->classPrefix . 'modUser');
         $this->profileAlias = $this->modx->getOption('profileAlias',$this->props,'Profile');
-        $this->profileClass = $this->modx->getOption('profileClass',$this->props,'modUserProfile');
+        $this->profileClass = $this->modx->getOption('profileClass',$this->props,$this->classPrefix . 'modUserProfile');
         $this->logFile = $this->corePath . 'logs/' . $this->modx->resource->get('alias') . '--'. date('Y-m-d-h.i.sa');
         $this->errors = array();
         /* make sure plugin can't crash if E_NOTICE is on */
@@ -173,7 +194,7 @@ class EmailResource
      */
     public function getUserTags($profile) {
 
-        if ($this->userTagsMethod = 'extended') {
+        if ($this->userTagsMethod == 'extended') {
             $extended = $profile->get('extended');
             $userTags = $extended[$this->userTagsExtendedField];
         } else {
@@ -235,7 +256,8 @@ class EmailResource
 
                 case 'RESOURCE':
                     /* @var $res modResource */
-                    $res = $this->modx->getObject('modResource', array('pagetitle' => $cssFile));
+                    $res = $this->modx->getObject($this->classPrefix .
+                        'modResource', array('pagetitle' => $cssFile));
                     $tempCss = $res->getContent();
                     unset($res);
                     if (empty($tempCss)) {
@@ -284,12 +306,15 @@ class EmailResource
     public function my_debug($message, $clear = false)
     {
         /* @var $chunk modChunk */
-        $chunk = $this->modx->getObject('modChunk', array('name' => 'debug'));
+        $chunk = $this->modx->getObject($this->classPrefix .
+            'modChunk', array('name' => 'debug'));
 
         if (!$chunk) {
-            $chunk = $this->modx->newObject('modChunk', array('name' => 'debug'));
+            $chunk = $this->modx->newObject($this->classPrefix .
+                'modChunk', array('name' => 'debug'));
             $chunk->save();
-            $chunk = $this->modx->getObject('modChunk', array('name' => 'debug'));
+            $chunk = $this->modx->getObject($this->classPrefix .
+                'modChunk', array('name' => 'debug'));
         }
         if ($clear) {
             $content = '';
@@ -348,31 +373,43 @@ class EmailResource
      */
     public function initializeMailer() {
         set_time_limit(0);
-        $this->modx->getService('mail', 'mail.modPHPMailer');
+        $mail = $this->mail;
+
         $mail_from = $this->modx->getOption('mail_from', $this->props);
-                $this->mail_from = empty($mail_from) ? $this->modx->getOption('emailsender', null) : $mail_from;
+        $this->mail_from = empty($mail_from)
+            ? $this->modx->getOption('emailsender', null)
+            : $mail_from;
 
-                $mail_from_name = $this->modx->getOption('mail_from_name', $this->props);
-                $this->mail_from_name = empty($mail_from_name) ? $this->modx->getOption('site_name', null) : $mail_from_name;
+        $mail_from_name = $this->modx->getOption('mail_from_name', $this->props);
+        $this->mail_from_name = empty($mail_from_name)
+            ? $this->modx->getOption('site_name', null)
+            : $mail_from_name;
 
-                $mail_sender = $this->modx->getOption('mail_sender', $this->props);
-                $this->mail_sender = empty($mail_sender) ? $this->modx->getOption('emailsender', null) : $mail_sender;
+        $mail_sender = $this->modx->getOption('mail_sender', $this->props);
+        $this->mail_sender = empty($mail_sender)
+            ? $this->modx->getOption('emailsender', null)
+            : $mail_sender;
 
-                $mail_reply_to = $this->modx->getOption('mail_reply_to', $this->props);
-                $this->mail_reply_to = empty($mail_reply_to) ? $this->modx->getOption('emailsender', null) : $mail_reply_to;
+        $mail_reply_to = $this->modx->getOption('mail_reply_to', $this->props);
+        $this->mail_reply_to = empty($mail_reply_to)
+            ? $this->modx->getOption('emailsender', null)
+            : $mail_reply_to;
 
-                $mail_subject = $this->modx->getOption('mail_subject', $this->props);
-                $mail_subject = empty($mail_subject) ? $this->modx->resource->get('longtitle') : $mail_subject;
-                /* fall back to pagetitle if longtitle is empty */
-                $this->mail_subject = empty($mail_subject) ? $this->modx->resource->get('pagetitle') : $mail_subject;
-        //$this->modx->mail->set(modMail::MAIL_BODY, $this->html);
-        // $this->modx->mail->set(modMail::MAIL_BODY_TEXT, $this->html);
-        $this->modx->mail->set(modMail::MAIL_FROM, $this->mail_from);
-        $this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
-        $this->modx->mail->set(modMail::MAIL_SENDER, $this->mail_sender);
-        $this->modx->mail->set(modMail::MAIL_SUBJECT, $this->mail_subject);
-        $this->modx->mail->address('reply-to', $this->mail_reply_to);
-        $this->modx->mail->setHTML(true);
+        $mail_subject = $this->modx->getOption('mail_subject', $this->props);
+        $mail_subject = empty($mail_subject)
+            ? $this->modx->resource->get('longtitle')
+            : $mail_subject;
+        /* fall back to pagetitle if longtitle is empty */
+        $this->mail_subject = empty($mail_subject)
+            ? $this->modx->resource->get('pagetitle')
+            : $mail_subject;
+
+        $mail->set(modMail::MAIL_FROM, $this->mail_from);
+        $mail->set(modMail::MAIL_FROM_NAME, $this->mail_from_name);
+        $mail->set(modMail::MAIL_SENDER, $this->mail_sender);
+        $mail->set(modMail::MAIL_SUBJECT, $this->mail_subject);
+        $mail->address('reply-to', $this->mail_reply_to);
+        $mail->setHTML(true);
 
     }
 
@@ -383,7 +420,8 @@ class EmailResource
      * @return string - the full email including the unsubscribe link
      */
     public function injectUnsubscribe($profileId) {
-        $profile = $this->modx->getObject('modUserProfile', $profileId);
+        $profile = $this->modx->getObject($this->classPrefix .
+            'modUserProfile', $profileId);
         $url = $this->unSub->createUrl($this->unSubUrl, $profile);
         $tpl = str_replace('[[+unsubscribeUrl]]', $url, $this->unSubTpl);
         if (stristr($this->html, '</body>')) {
@@ -408,20 +446,20 @@ class EmailResource
      */
     public function sendMail($address, $name, $profileId)
     {
+        $mail = $this->mail;
         $html = $this->injectUnsubscribe($profileId);
         // my_debug("Tpl: " . $tpl);
         // my_debug("HTML: " . $html);
-        $this->modx->mail->set(modMail::MAIL_BODY_TEXT, strip_tags($html));
-        $this->modx->mail->set(modMail::MAIL_BODY, $html);
-        $this->modx->mail->address('to', $address, $name);
-        $success = $this->modx->mail->send();
+        $mail->set(modMail::MAIL_BODY_TEXT, strip_tags($html));
+        $mail->set(modMail::MAIL_BODY, $html);
+        $mail->address('to', $address, $name);
+        $success = $mail->send();
         if (! $success) {
-            $this->setError($this->modx->mail->mailer->ErrorInfo);
+            $this->setError($mail->mailer->ErrorInfo);
         }
-        $this->modx->mail->mailer->ClearAddresses();
+        $mail->mailer->ClearAddresses();
         /* $this->modx->mail->mailer->ClearBCCs(); */
         return $success;
-
     }
 
     /**
@@ -445,7 +483,8 @@ class EmailResource
             /* allow UserGroup name or ID */
             $c = intval($userGroupName);
             $c = is_int($c) && !empty($c) ? $userGroupName : array('name' => $userGroupName);
-            $group = $this->modx->getObject('modUserGroup',$c);
+            $group = $this->modx->getObject($this->classPrefix .
+                'modUserGroup',$c);
 
             if (empty($group)) {
                 $this->setError('Could not find User Group: ' . $userGroupName);
@@ -463,69 +502,68 @@ class EmailResource
             $c->sortby($this->modx->escape($this->sortByAlias).'.'.$this->modx->escape($this->sortBy),'ASC');
             $users = $this->modx->getIterator($this->userClass,$c);
 
-
            /* $ugms = $group->getMany('UserGroupMembers');
             if (empty ($ugms)) {
                 $this->setError('User Group: ' . $userGroupName . ' has no members');
             }*/
 
-                foreach ($users as $user) {
-                    /* @var $user modUser */
-                    /* get the user id */
-                    /* get the user object and username */
+            foreach ($users as $user) {
+                /* @var $user modUser */
+                /* get the user id */
+                /* get the user object and username */
 
-                    $username = $user->get('username');
+                $username = $user->get('username');
 
-                    /* get the user's profile and extract email and fullname */
+                /* get the user's profile and extract email and fullname */
 
-                    $profile = $user->getOne($this->profileAlias);
-                    if ($profile) {
-                        $userTags = $this->getUserTags($profile);
-                        $email = $profile->get('email');
-                        $fullName = $profile->get('fullname');
+                $profile = $user->getOne($this->profileAlias);
+                if ($profile) {
+                    $userTags = $this->getUserTags($profile);
+                    $email = $profile->get('email');
+                    $fullName = $profile->get('fullname');
 
-                    } else {
-                        $this->setError('User has no Profile');
-                    }
+                } else {
+                    $this->setError('User has no Profile');
+                }
 
-                    /* fall back to username if fullname is empty */
-                    $fullName = empty($fullName) ? $username : $fullName;
+                /* fall back to username if fullname is empty */
+                $fullName = empty($fullName) ? $username : $fullName;
 
-                    /* process tags if Tags TV is set */
-                    if (!empty ($this->tags)) {
-                        $tags = explode(',',$this->tags);
-                        $hasTag = false;
+                /* process tags if Tags TV is set */
+                if (!empty ($this->tags)) {
+                    $tags = explode(',',$this->tags);
+                    $hasTag = false;
 
-                        foreach ($tags as $tag) {
-                            $tag = trim($tag);
+                    foreach ($tags as $tag) {
+                        $tag = trim($tag);
 
 
-                            if ( (!empty($tag)) && stristr($userTags,$tag)) {
-                                $hasTag = true;
-                            }
-                        }
-                        if (! $hasTag) {
-                            continue;
+                        if ( (!empty($tag)) && stristr($userTags,$tag)) {
+                            $hasTag = true;
                         }
                     }
-
-                    if (! empty($email)) {
-                        /* add user data to recipient array */
-
-                        /* Either no tags are in use or this user has a tag.
-                         * Add user to recipient array */
-                        $recipients[] = array(
-                            'group' => $userGroupName,
-                            'email' => $email,
-                            'fullName' => $fullName,
-                            'userTags' => $userTags,
-                            'profileId' => $profile->get('id'),
-                        );
-                    } else {
-                        $this->setError('User: ' . $username . ' has no email address');
+                    if (! $hasTag) {
+                        continue;
                     }
                 }
+
+                if (! empty($email)) {
+                    /* add user data to recipient array */
+
+                    /* Either no tags are in use or this user has a tag.
+                     * Add user to recipient array */
+                    $recipients[] = array(
+                        'group' => $userGroupName,
+                        'email' => $email,
+                        'fullName' => $fullName,
+                        'userTags' => $userTags,
+                        'profileId' => $profile->get('id'),
+                    );
+                } else {
+                    $this->setError('User: ' . $username . ' has no email address');
+                }
             }
+        }
 
         unset($users);
 
@@ -555,8 +593,6 @@ class EmailResource
                     $e = array_pop($this->errors);
                     fwrite($fp, 'Error sending to: ' . $recipient['email'] . ' (' . $recipient['fullName'] . ') ' . $e . "\n");
                 }
-
-
             }
             sleep($this->itemDelay);
 
@@ -570,8 +606,6 @@ class EmailResource
             fclose($fp);
         }
         return true;
-
-
     }
 
     /**
