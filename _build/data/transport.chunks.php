@@ -1,7 +1,7 @@
 <?php
 /**
  * EmailResource transport chunks
- * Copyright 2011-2019 Bob Ray <https://bobsguides.com>
+ * Copyright 2011-2023 Bob Ray <https://bobsguides.com>
  * @author Bob Ray <https://bobsguides.com>
  * 8/20/11
  *
